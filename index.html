@@ -507,10 +507,7 @@ nav {
 
 /* ── SCROLL INDICATOR ── */
 .scroll-hint {
-  position: absolute;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
+  margin-top: 48px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -567,18 +564,76 @@ nav {
   100% { transform: scale(1.15) translate(20px, -10px); }
 }
 .domains-video-bg video {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: blur(24px) saturate(130%) brightness(0.5);
-  transform: scale(1.15);
+  z-index: 1;
+  /* The source video is already pre-blurred — no CSS blur applied. */
+}
+
+/* Audio toggle button (top-right of domains section) */
+.video-audio-toggle {
+  position: absolute;
+  top: clamp(16px, 3vw, 32px);
+  right: clamp(16px, 3vw, 32px);
+  z-index: 5;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(13,27,42,0.45);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(255,255,255,0.22);
+  color: rgba(255,255,255,0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  padding: 0;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+}
+.video-audio-toggle:hover {
+  background: var(--teal);
+  border-color: var(--teal-light);
+  transform: scale(1.06);
+}
+.video-audio-toggle svg { width: 20px; height: 20px; display: block; }
+
+.video-audio-toggle .icon-muted,
+.video-audio-toggle .icon-playing { display: none; }
+.video-audio-toggle.muted .icon-muted { display: block; }
+.video-audio-toggle:not(.muted) .icon-playing { display: block; }
+
+/* Subtle pulse to invite first click before user has interacted */
+.video-audio-toggle.pulse::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 2px solid rgba(77,187,198,0.6);
+  animation: audioPulse 2s ease-out infinite;
+}
+@keyframes audioPulse {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@media (max-width: 640px) {
+  .video-audio-toggle { width: 40px; height: 40px; top: 14px; right: 14px; }
+  .video-audio-toggle svg { width: 18px; height: 18px; }
 }
 .domains-video-bg::after {
   content: '';
   position: absolute;
   inset: 0;
+  z-index: 2;
+  /* Very subtle overlay — almost invisible. Just a faint cream tint at top/bottom
+     for soft transition into the page; middle stays clear so video is fully visible. */
   background:
-    linear-gradient(180deg, rgba(248,246,241,0.85) 0%, rgba(248,246,241,0.75) 50%, rgba(248,246,241,0.92) 100%);
+    linear-gradient(180deg, rgba(248,246,241,0.18) 0%, rgba(248,246,241,0) 18%, rgba(248,246,241,0) 82%, rgba(248,246,241,0.35) 100%);
 }
 
 .section-label {
@@ -1421,49 +1476,77 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
   opacity: 0.85;
 }
 
-/* ── TABERE: SWISS FLAG ── */
-.cine-backdrop.theme-swiss {
-  background:
-    radial-gradient(ellipse 80% 70% at 50% 100%, rgba(140,15,15,0.7) 0%, transparent 70%),
-    radial-gradient(ellipse 100% 80% at 50% 0%, rgba(255,80,80,0.15) 0%, transparent 60%),
-    #C8102E;
-}
-.cine-backdrop.theme-swiss::before {
-  /* falling snow */
-  background-image:
-    radial-gradient(circle at 12% 22%, rgba(255,255,255,0.7) 1.5px, transparent 2.5px),
-    radial-gradient(circle at 78% 18%, rgba(255,255,255,0.6) 1.5px, transparent 2.5px),
-    radial-gradient(circle at 32% 68%, rgba(255,255,255,0.5) 1.5px, transparent 2.5px),
-    radial-gradient(circle at 88% 55%, rgba(255,255,255,0.7) 1.5px, transparent 2.5px),
-    radial-gradient(circle at 52% 42%, rgba(255,255,255,0.5) 1.5px, transparent 2.5px),
-    radial-gradient(circle at 8% 88%, rgba(255,255,255,0.6) 1.5px, transparent 2.5px);
-  background-size: 220px 220px, 260px 260px, 240px 240px, 280px 280px, 300px 300px, 220px 220px;
-  opacity: 0.65;
-  animation: cineSnow 25s linear infinite;
-}
-@keyframes cineSnow {
-  to { background-position: 20px 900px, -30px 920px, 40px 880px, -20px 940px, 30px 900px, -40px 880px; }
-}
-.cine-backdrop.theme-swiss::after {
-  top: -10%;
+/* ── TABERE: ALPINE PHOTO + WAVING SWISS FLAG ── */
+/* Photo (covers full canvas) — placeholder gradient if no photo yet */
+.cine-photo {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: 70%;
-  left: 0;
-  transform: none;
-  background: radial-gradient(ellipse 50% 60% at 50% 0%, rgba(255,200,200,0.18) 0%, transparent 55%);
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  background:
+    linear-gradient(180deg, #5a7a9a 0%, #6b8aaa 30%, #b5c4d4 55%, #8aa090 75%, #4a5a4a 100%);
 }
 
-/* The white cross of the Swiss flag, large and centered */
-.cine-swiss-cross {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(58vh, 58vw);
-  height: min(58vh, 58vw);
+/* Dark scrim overlay for text readability over photo */
+.cine-backdrop.theme-swiss {
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.45) 100%),
+    linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.1) 30%, rgba(0,0,0,0.15) 70%, rgba(0,0,0,0.55) 100%);
   z-index: 1;
+}
+.cine-backdrop.theme-swiss::before { display: none; }
+.cine-backdrop.theme-swiss::after { display: none; }
+
+/* Waving Swiss flag — SVG with turbulence displacement + CSS sway */
+.swiss-flag {
+  position: absolute;
+  top: clamp(80px, 14vh, 140px);
+  right: clamp(24px, 5vw, 64px);
+  width: clamp(110px, 14vw, 200px);
+  z-index: 4;
   pointer-events: none;
-  opacity: 0.22;
+  filter: drop-shadow(0 12px 24px rgba(0,0,0,0.45));
+  animation: swissFlagSway 5s ease-in-out infinite;
+  transform-origin: top left;
+}
+
+@keyframes swissFlagSway {
+  0%, 100% { transform: perspective(500px) rotateY(-4deg) rotateZ(-1deg) translateY(0); }
+  25%      { transform: perspective(500px) rotateY( 6deg) rotateZ( 0.5deg) translateY(2px); }
+  50%      { transform: perspective(500px) rotateY( 2deg) rotateZ( 1deg) translateY(0); }
+  75%      { transform: perspective(500px) rotateY(-2deg) rotateZ(-0.5deg) translateY(1px); }
+}
+
+/* Flagpole line going up from flag */
+.swiss-flagpole {
+  position: absolute;
+  top: 24px;
+  right: calc(clamp(24px, 5vw, 64px) + clamp(110px, 14vw, 200px) - 4px);
+  width: 3px;
+  height: clamp(70px, 12vh, 130px);
+  background: linear-gradient(180deg, #d4d4d4 0%, #a8a8a8 50%, #707070 100%);
+  border-radius: 2px;
+  z-index: 4;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.swiss-flagpole::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -3px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #f5d76e 0%, #d4af37 60%, #8a6e1f 100%);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+@media (max-width: 640px) {
+  .swiss-flag { top: 90px; right: 18px; width: 100px; }
+  .swiss-flagpole { top: 18px; right: calc(18px + 100px - 4px); height: 70px; }
 }
 
 /* ── MISIUNI: SUNDAY MORNING / CHURCH ── */
@@ -2099,9 +2182,48 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 1024px) {
-  nav { padding: 0 30px; }
-  .nav-links { display: none; }
-  .nav-hamburger { display: flex; }
+  /* Two-row nav: top = logo + lang + CTA, bottom = scrollable tab strip */
+  nav {
+    padding: 0 20px;
+    height: auto;
+    min-height: 56px;
+    flex-wrap: wrap;
+    row-gap: 0;
+  }
+  .nav-logo svg.amedeo-logo { height: 36px; }
+  .nav-links {
+    display: flex !important;
+    order: 3;
+    width: 100vw;
+    margin: 0 -20px;
+    padding: 6px 16px 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    border-top: 1px solid rgba(42,157,168,0.08);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links li { flex-shrink: 0; scroll-snap-align: start; }
+  .nav-links a {
+    font-size: 10px;
+    padding: 8px 12px;
+    white-space: nowrap;
+    letter-spacing: 0.15em;
+  }
+  .nav-hamburger { display: none; }
+  .nav-right { gap: 10px; }
+  .nav-cta { padding: 8px 14px; font-size: 10px; }
+  .lang-btn { padding: 4px 8px; font-size: 9px; }
+  /* dark-mode tab strip border on cinematic pages */
+  nav.cine-mode .nav-links { border-top-color: rgba(255,255,255,0.08); }
+
+  /* Push content below the taller nav */
+  .hero { padding-top: 130px; }
+  .inner-hero { padding-top: 160px; }
+
   .domains-grid { grid-template-columns: repeat(2, 1fr); }
   .about-section { grid-template-columns: 1fr; gap: 40px; }
   .cards-grid { grid-template-columns: repeat(2, 1fr); }
@@ -2110,8 +2232,12 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
 }
 
 @media (max-width: 640px) {
-  nav { padding: 0 20px; height: 60px; }
-  .hero { padding: 100px 24px 60px; }
+  nav { padding: 0 14px; min-height: 52px; }
+  .nav-logo svg.amedeo-logo { height: 32px; }
+  .nav-links { padding: 4px 12px 8px; margin: 0 -14px; }
+  .nav-links a { font-size: 9.5px; padding: 7px 10px; }
+  .nav-cta { padding: 7px 12px; font-size: 9.5px; }
+  .hero { padding: 130px 24px 60px; }
   .domains-section { padding: 60px 24px; }
   .content-section { padding: 60px 24px; }
   .content-section.with-bg { margin: 0 24px 24px; padding: 40px 24px; }
@@ -2119,6 +2245,8 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
   .cards-grid { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
   .about-section { padding: 60px 24px; }
+  /* On phones, hide video (saves data & battery) — gradient fallback shows */
+  .domains-video-bg video { display: none; }
   .footer-grid { grid-template-columns: 1fr; }
   footer { padding: 60px 24px 32px; }
   .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
@@ -2148,12 +2276,12 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
   <ul class="nav-links" id="nav-links">
     <li><a onclick="showPage('home')" data-i18n="nav.home">Acasă</a></li>
     <li><a onclick="showPage('evanghelizare')" data-i18n="nav.ev">Evanghelizare</a></li>
-    <li><a onclick="showPage('recreere')" data-i18n="nav.rec">Recreere</a></li>
     <li><a onclick="showPage('tabere')" data-i18n="nav.tab">Tabere</a></li>
-    <li><a onclick="showPage('misiuni')" data-i18n="nav.mis">Misiuni</a></li>
-    <li><a onclick="showPage('filiale')" data-i18n="nav.fil">Filiale</a></li>
-    <li><a onclick="showPage('studio')" data-i18n="nav.stu">Studio</a></li>
     <li><a onclick="showPage('biblic')" data-i18n="nav.bib">Studiu Biblic</a></li>
+    <li><a onclick="showPage('misiuni')" data-i18n="nav.mis">Misiuni</a></li>
+    <li><a onclick="showPage('studio')" data-i18n="nav.stu">Studio</a></li>
+    <li><a onclick="showPage('recreere')" data-i18n="nav.rec">Recreere</a></li>
+    <li><a onclick="showPage('filiale')" data-i18n="nav.fil">Filiale</a></li>
   </ul>
 
   <div class="nav-right">
@@ -2186,12 +2314,12 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
   </svg>
   <a onclick="showPage('home');toggleMobileNav()" data-i18n="nav.home">Acasă</a>
   <a onclick="showPage('evanghelizare');toggleMobileNav()" data-i18n="nav.ev">Evanghelizare</a>
-  <a onclick="showPage('recreere');toggleMobileNav()" data-i18n="nav.rec">Recreere</a>
   <a onclick="showPage('tabere');toggleMobileNav()" data-i18n="nav.tab">Tabere</a>
-  <a onclick="showPage('misiuni');toggleMobileNav()" data-i18n="nav.mis">Misiuni</a>
-  <a onclick="showPage('filiale');toggleMobileNav()" data-i18n="nav.fil">Filiale</a>
-  <a onclick="showPage('studio');toggleMobileNav()" data-i18n="nav.stu">Studio</a>
   <a onclick="showPage('biblic');toggleMobileNav()" data-i18n="nav.bib">Studiu Biblic</a>
+  <a onclick="showPage('misiuni');toggleMobileNav()" data-i18n="nav.mis">Misiuni</a>
+  <a onclick="showPage('studio');toggleMobileNav()" data-i18n="nav.stu">Studio</a>
+  <a onclick="showPage('recreere');toggleMobileNav()" data-i18n="nav.rec">Recreere</a>
+  <a onclick="showPage('filiale');toggleMobileNav()" data-i18n="nav.fil">Filiale</a>
   <a onclick="showPage('alatura');toggleMobileNav()" data-i18n="nav.join">Alătură-te</a>
 </div>
 
@@ -2244,11 +2372,26 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
   <!-- Domains preview -->
   <div id="domains-anchor"></div>
   <section class="domains-section">
-    <!-- Background video (blurred). Replace placeholder by adding a <video> tag with your file.
-         Example: <video autoplay muted loop playsinline><source src="path/to/video.mp4" type="video/mp4"></video> -->
+    <!-- Background video. Starts muted (browser autoplay requirement); volume fades in
+         based on scroll position once user has interacted. -->
     <div class="domains-video-bg">
-      <!-- <video autoplay muted loop playsinline poster=""><source src="" type="video/mp4"></video> -->
+      <video id="domains-video" autoplay muted loop playsinline preload="metadata" poster="">
+        <source src="assets/domains-bg.mp4" type="video/mp4">
+      </video>
     </div>
+    <!-- Audio toggle (pulses on first load to invite click) -->
+    <button class="video-audio-toggle muted pulse" id="video-audio-toggle"
+            aria-label="Activează sunetul video"
+            onclick="toggleVideoAudio()">
+      <svg class="icon-muted" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M11 5L6 9H3a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h3l5 4V5z" fill="currentColor"/>
+        <path d="M16 9l5 5m0-5l-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <svg class="icon-playing" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M11 5L6 9H3a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h3l5 4V5z" fill="currentColor"/>
+        <path d="M16 8a5 5 0 0 1 0 8M19 5a8 8 0 0 1 0 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </button>
     <div class="section-label" data-i18n="home.domains.label">Domeniile noastre</div>
     <h2 class="section-title" data-i18n="home.domains.title">Ce facem</h2>
     <div class="teal-divider"></div>
@@ -2441,8 +2584,8 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
         </div>
         <div class="card reveal">
           <div class="card-icon">🌱</div>
-          <div class="card-title" data-i18n="ev.card3.title">Urmărire & Ucenicie</div>
-          <p class="card-text" data-i18n="ev.card3.text">Activitățile noastre nu se opresc la eveniment — urmărim și însoțim fiecare persoană pe drumul credinței.</p>
+          <div class="card-title" data-i18n="ev.card3.title">Ucenicie & Implicare</div>
+          <p class="card-text" data-i18n="ev.card3.text">Nu reușim să ne ocupăm de toți cei care interacționează cu noi, dar însoțim cu drag pe cei care doresc să se implice în lucrarea asociației.</p>
         </div>
       </div>
 
@@ -2574,15 +2717,51 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
 <!-- ══════════════════════════════════════════════════ -->
 <!-- PAGE: TABERE                                      -->
 <!-- ══════════════════════════════════════════════════ -->
-<div class="page cinematic" id="page-tabere" data-cine-icon="🇨🇭">
+<div class="page cinematic" id="page-tabere" data-cine-icon="⛺">
   <section class="cine-stage">
     <div class="cine-canvas">
+      <!-- Alpine photo (Wengen-style village + Jungfrau mountains).
+           Save your Swiss alpine photo as: assets/tabere-bg.jpg -->
+      <img class="cine-photo" src="assets/tabere-bg.jpg" alt="" onerror="this.style.display='none'"/>
+      <!-- Dark scrim overlay for text readability -->
       <div class="cine-backdrop theme-swiss"></div>
-      <!-- Swiss flag white cross -->
-      <svg class="cine-swiss-cross" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <rect x="13" y="6" width="6" height="20" fill="white"/>
-        <rect x="6" y="13" width="20" height="6" fill="white"/>
+
+      <!-- Flagpole + waving Swiss flag (top-right corner) -->
+      <div class="swiss-flagpole" aria-hidden="true"></div>
+      <svg class="swiss-flag" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Steagul Elveției">
+        <defs>
+          <filter id="flagWave" x="-15%" y="-15%" width="130%" height="130%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.013 0.022" numOctaves="2" seed="3" result="turb">
+              <animate attributeName="baseFrequency"
+                       values="0.013 0.022;0.018 0.028;0.013 0.022"
+                       dur="6s" repeatCount="indefinite"/>
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="turb" scale="7"/>
+          </filter>
+          <linearGradient id="flagShade" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#000" stop-opacity="0.22"/>
+            <stop offset="35%" stop-color="#000" stop-opacity="0"/>
+            <stop offset="65%" stop-color="#000" stop-opacity="0"/>
+            <stop offset="100%" stop-color="#000" stop-opacity="0.18"/>
+          </linearGradient>
+          <linearGradient id="flagShine" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#fff" stop-opacity="0.15"/>
+            <stop offset="50%" stop-color="#fff" stop-opacity="0"/>
+            <stop offset="100%" stop-color="#fff" stop-opacity="0.08"/>
+          </linearGradient>
+        </defs>
+        <g filter="url(#flagWave)">
+          <!-- Red square (Swiss official color #DA291C) -->
+          <rect x="12" y="12" width="176" height="176" fill="#DA291C" rx="1"/>
+          <!-- White cross (Swiss flag cross has specific proportions: arms are 1/6 of total) -->
+          <rect x="88" y="40" width="24" height="120" fill="#ffffff"/>
+          <rect x="40" y="88" width="120" height="24" fill="#ffffff"/>
+          <!-- Shading + shine for depth -->
+          <rect x="12" y="12" width="176" height="176" fill="url(#flagShade)" rx="1"/>
+          <rect x="12" y="12" width="176" height="176" fill="url(#flagShine)" rx="1"/>
+        </g>
       </svg>
+
       <div class="cine-intro">
         <div class="cine-icon">⛺</div>
         <div class="cine-label" data-i18n="tab.label">Tabără · Elveția</div>
@@ -2981,12 +3160,53 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
       </div>
     </div>
 
-    <div class="content-section with-bg reveal" style="text-align:center;">
+    <div class="content-section with-bg reveal" style="text-align:center; max-width: 760px; margin-left: auto; margin-right: auto;">
       <div class="section-label" data-i18n="stu.cta.label">Colaborare</div>
       <h2 class="section-title" style="font-size:clamp(28px,4vw,48px);" data-i18n="stu.cta.title">Vrei să înregistrezi cu noi?</h2>
       <div class="teal-divider"></div>
       <p class="section-desc" data-i18n="stu.cta.desc">Contactează-ne pentru detalii despre disponibilitate, sesiuni de înregistrare și colaborări.</p>
-      <a href="mailto:mocanruben.mr@gmail.com" class="btn-primary" data-i18n="stu.cta.btn">Contactează studioul</a>
+
+      <div class="join-form" id="studio-form" style="text-align:left; margin-top: 32px;">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" data-i18n="stu.form.name">Nume / Proiect</label>
+            <input class="form-input" type="text" id="s-name" placeholder="Nume sau formație">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="stu.form.email">Email</label>
+            <input class="form-input" type="email" id="s-email" placeholder="email@example.com">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" data-i18n="stu.form.phone">Telefon</label>
+            <input class="form-input" type="tel" id="s-phone" placeholder="+40 7xx xxx xxx">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="stu.form.type">Tip proiect</label>
+            <select class="form-input form-select" id="s-type">
+              <option value="muzica" data-i18n="stu.form.type.music">Muzică / Album</option>
+              <option value="predica" data-i18n="stu.form.type.sermon">Predică / Voce</option>
+              <option value="podcast" data-i18n="stu.form.type.podcast">Podcast</option>
+              <option value="mixare" data-i18n="stu.form.type.mix">Mixare / Mastering</option>
+              <option value="altele" data-i18n="stu.form.type.other">Altele</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="stu.form.message">Detalii proiect</label>
+          <textarea class="form-textarea" id="s-message" placeholder="Spune-ne mai multe despre proiect — durată estimată, dată dorită, stil muzical, observații…"></textarea>
+        </div>
+        <div style="text-align:center; margin-top: 20px;">
+          <button type="button" class="btn-primary" onclick="submitStudioForm()" data-i18n="stu.cta.btn">Trimite cererea</button>
+        </div>
+      </div>
+
+      <div id="studio-form-success" style="display:none; padding: 40px 20px;">
+        <div style="font-size: 48px; margin-bottom: 16px;">✓</div>
+        <h3 style="font-family: var(--serif); font-weight: 400; font-size: 28px; color: var(--navy); margin-bottom: 12px;" data-i18n="stu.success.title">Cererea a fost trimisă!</h3>
+        <p style="color: var(--text-soft); max-width: 480px; margin: 0 auto;" data-i18n="stu.success.text">Mulțumim pentru interes. Te vom contacta în cel mai scurt timp pentru a discuta proiectul.</p>
+      </div>
     </div>
 
     <div class="footer-teal-line"></div>
@@ -3149,7 +3369,7 @@ const i18n = {
     'ev.label':'Activitate','ev.title':'Evanghelizare','ev.desc':'Evenimente și activități evangelice prin care ducem vestea bună mai departe, cu dragoste și autenticitate.',
     'ev.card1.title':'Evenimente Publice','ev.card1.text':'Organizăm evenimente evangelice deschise comunității, cu muzică, mărturii și mesajul Evangheliei prezentate cu claritate și căldură.',
     'ev.card2.title':'Rugăciune & Mijlocire','ev.card2.text':'Înainte de fiecare activitate evangelică, ne pregătim prin rugăciune, credând că Duhul Sfânt este cel care lucrează cu adevărat în inimi.',
-    'ev.card3.title':'Urmărire & Ucenicie','ev.card3.text':'Activitățile noastre nu se opresc la eveniment — urmărim și însoțim fiecare persoană pe drumul credinței.',
+    'ev.card3.title':'Ucenicie & Implicare','ev.card3.text':'Nu reușim să ne ocupăm de toți cei care interacționează cu noi, dar însoțim cu drag pe cei care doresc să se implice în lucrarea asociației.',
     'rec.label':'Activitate','rec.title':'Recreere & Relaxare','rec.desc':'Momente de refacere, bucurie și comuniune autentică în mijlocul naturii și al fraților.',
     'rec.card1.title':'Drumeții & Natură','rec.card1.text':'Activități în aer liber care aduc comunitatea împreună și oferă ocazia de a admira creația lui Dumnezeu.',
     'rec.card2.title':'Seri de Comuniune','rec.card2.text':'Întâlniri informale cu muzică, mâncare și conversații care adâncesc prietenia și legăturile din comunitate.',
@@ -3175,7 +3395,10 @@ const i18n = {
     'stu.card1.title':'Producții Proprii','stu.card1.text':'Muzică de laudă, predici înregistrate și conținut audio al asociației — produse cu profesionalism și dedicare.',
     'stu.card2.title':'Colaborări','stu.card2.text':'Deschidem studioul pentru artiști, formații și organizații care doresc să înregistreze proiecte muzicale de calitate.',
     'stu.card3.title':'Echipament Profesional','stu.card3.text':'Studio echipat pentru înregistrare, mixare și mastering, capabil să producă material audio de calitate profesională.',
-    'stu.cta.label':'Colaborare','stu.cta.title':'Vrei să înregistrezi cu noi?','stu.cta.desc':'Contactează-ne pentru detalii despre disponibilitate, sesiuni de înregistrare și colaborări.','stu.cta.btn':'Contactează studioul',
+    'stu.cta.label':'Colaborare','stu.cta.title':'Vrei să înregistrezi cu noi?','stu.cta.desc':'Contactează-ne pentru detalii despre disponibilitate, sesiuni de înregistrare și colaborări.','stu.cta.btn':'Trimite cererea',
+    'stu.form.name':'Nume / Proiect','stu.form.email':'Email','stu.form.phone':'Telefon','stu.form.type':'Tip proiect','stu.form.message':'Detalii proiect',
+    'stu.form.type.music':'Muzică / Album','stu.form.type.sermon':'Predică / Voce','stu.form.type.podcast':'Podcast','stu.form.type.mix':'Mixare / Mastering','stu.form.type.other':'Altele',
+    'stu.success.title':'Cererea a fost trimisă!','stu.success.text':'Mulțumim pentru interes. Te vom contacta în cel mai scurt timp pentru a discuta proiectul.',
     'bib.label':'Comunitate','bib.title':'Studiu Biblic','bib.desc':'Studii biblice online pe YouTube, cu acces extins pentru membrii comunității Amedeo.',
     'bib.youtube':'Studii pe YouTube — Click pentru a accesa',
     'bib.card1.title':'Online pe YouTube','bib.card1.text':'Studiile biblice publice sunt disponibile pe canalul YouTube al asociației, accesibile oricui dorește să studieze Cuvântul.',
@@ -3243,7 +3466,7 @@ const i18n = {
     'ev.label':'Activity','ev.title':'Evangelism','ev.desc':'Evangelistic events and activities through which we carry the Good News forward, with love and authenticity.',
     'ev.card1.title':'Public Events','ev.card1.text':'We organize evangelistic events open to the community, with music, testimonies, and the message of the Gospel presented with clarity and warmth.',
     'ev.card2.title':'Prayer & Intercession','ev.card2.text':'Before each evangelistic activity, we prepare through prayer, believing that the Holy Spirit is the one who truly works in hearts.',
-    'ev.card3.title':'Follow-up & Discipleship','ev.card3.text':'Our activities don\'t stop at the event — we follow and accompany each person on their faith journey.',
+    'ev.card3.title':'Discipleship & Engagement','ev.card3.text':'We can\'t follow up with everyone who interacts with us, but we walk alongside those who wish to get involved in the association\'s work.',
     'rec.label':'Activity','rec.title':'Recreation & Relaxation','rec.desc':'Moments of renewal, joy, and authentic fellowship in nature and among brothers and sisters.',
     'rec.card1.title':'Hiking & Nature','rec.card1.text':'Outdoor activities that bring the community together and offer the opportunity to admire God\'s creation.',
     'rec.card2.title':'Fellowship Evenings','rec.card2.text':'Informal gatherings with music, food, and conversations that deepen friendship and community bonds.',
@@ -3269,7 +3492,10 @@ const i18n = {
     'stu.card1.title':'Own Productions','stu.card1.text':'Worship music, recorded sermons, and audio content of the association — produced with professionalism and dedication.',
     'stu.card2.title':'Collaborations','stu.card2.text':'We open the studio to artists, bands, and organizations who wish to record quality music projects.',
     'stu.card3.title':'Professional Equipment','stu.card3.text':'Studio equipped for recording, mixing, and mastering, capable of producing professional-quality audio material.',
-    'stu.cta.label':'Collaboration','stu.cta.title':'Want to record with us?','stu.cta.desc':'Contact us for details about availability, recording sessions, and collaborations.','stu.cta.btn':'Contact the studio',
+    'stu.cta.label':'Collaboration','stu.cta.title':'Want to record with us?','stu.cta.desc':'Contact us for details about availability, recording sessions, and collaborations.','stu.cta.btn':'Send request',
+    'stu.form.name':'Name / Project','stu.form.email':'Email','stu.form.phone':'Phone','stu.form.type':'Project type','stu.form.message':'Project details',
+    'stu.form.type.music':'Music / Album','stu.form.type.sermon':'Sermon / Voice','stu.form.type.podcast':'Podcast','stu.form.type.mix':'Mixing / Mastering','stu.form.type.other':'Other',
+    'stu.success.title':'Request sent!','stu.success.text':'Thank you for your interest. We will contact you as soon as possible to discuss the project.',
     'bib.label':'Community','bib.title':'Bible Study','bib.desc':'Online Bible studies on YouTube, with extended access for Amedeo community members.',
     'bib.youtube':'Studies on YouTube — Click to access',
     'bib.card1.title':'Online on YouTube','bib.card1.text':'Public Bible studies are available on the association\'s YouTube channel, accessible to anyone who wants to study the Word.',
@@ -3338,7 +3564,7 @@ const i18n = {
     'ev.label':'Aktivität','ev.title':'Evangelisation','ev.desc':'Evangelistische Veranstaltungen, durch die wir die Gute Nachricht mit Liebe und Authentizität weitertragen.',
     'ev.card1.title':'Öffentliche Veranstaltungen','ev.card1.text':'Wir organisieren evangelistische Veranstaltungen für die Gemeinschaft, mit Musik, Zeugnissen und der Botschaft des Evangeliums.',
     'ev.card2.title':'Gebet & Fürbitte','ev.card2.text':'Vor jeder evangelistischen Aktivität bereiten wir uns durch Gebet vor, im Glauben, dass der Heilige Geist wirklich in den Herzen wirkt.',
-    'ev.card3.title':'Nachverfolgung & Jüngerschaft','ev.card3.text':'Unsere Aktivitäten enden nicht bei der Veranstaltung — wir begleiten jeden Menschen auf seinem Glaubensweg.',
+    'ev.card3.title':'Jüngerschaft & Mitwirkung','ev.card3.text':'Wir können uns nicht um alle kümmern, die mit uns in Kontakt treten, begleiten aber gerne jene, die sich in der Arbeit der Vereinigung einbringen möchten.',
     'rec.label':'Aktivität','rec.title':'Erholung & Entspannung','rec.desc':'Momente der Erneuerung, Freude und authentischen Gemeinschaft in der Natur.',
     'rec.card1.title':'Wandern & Natur','rec.card1.text':'Aktivitäten im Freien, die die Gemeinschaft zusammenbringen und die Schöpfung Gottes erleben lassen.',
     'rec.card2.title':'Gemeinschaftsabende','rec.card2.text':'Informelle Treffen mit Musik, Essen und Gesprächen, die Freundschaft und Gemeinschaftsbande vertiefen.',
@@ -3364,7 +3590,10 @@ const i18n = {
     'stu.card1.title':'Eigene Produktionen','stu.card1.text':'Lobpreismusik, aufgezeichnete Predigten und Audioinhalte des Verbandes — professionell und engagiert produziert.',
     'stu.card2.title':'Kooperationen','stu.card2.text':'Wir öffnen das Studio für Künstler, Bands und Organisationen, die Musikprojekte in hoher Qualität aufnehmen möchten.',
     'stu.card3.title':'Professionelle Ausrüstung','stu.card3.text':'Studio ausgestattet für Aufnahme, Mischung und Mastering, fähig professionell hochwertiges Audiomaterial zu produzieren.',
-    'stu.cta.label':'Kooperation','stu.cta.title':'Möchten Sie mit uns aufnehmen?','stu.cta.desc':'Kontaktieren Sie uns für Details zu Verfügbarkeit, Aufnahmesitzungen und Kooperationen.','stu.cta.btn':'Studio kontaktieren',
+    'stu.cta.label':'Kooperation','stu.cta.title':'Möchten Sie mit uns aufnehmen?','stu.cta.desc':'Kontaktieren Sie uns für Details zu Verfügbarkeit, Aufnahmesitzungen und Kooperationen.','stu.cta.btn':'Anfrage senden',
+    'stu.form.name':'Name / Projekt','stu.form.email':'E-Mail','stu.form.phone':'Telefon','stu.form.type':'Projektart','stu.form.message':'Projektdetails',
+    'stu.form.type.music':'Musik / Album','stu.form.type.sermon':'Predigt / Stimme','stu.form.type.podcast':'Podcast','stu.form.type.mix':'Mixing / Mastering','stu.form.type.other':'Sonstiges',
+    'stu.success.title':'Anfrage gesendet!','stu.success.text':'Vielen Dank für Ihr Interesse. Wir werden Sie so bald wie möglich kontaktieren, um das Projekt zu besprechen.',
     'bib.label':'Gemeinschaft','bib.title':'Bibelstudium','bib.desc':'Online-Bibelstudien auf YouTube mit erweitertem Zugang für Amedeo-Gemeinschaftsmitglieder.',
     'bib.youtube':'Studien auf YouTube — Klicken zum Zugriff',
     'bib.card1.title':'Online auf YouTube','bib.card1.text':'Öffentliche Bibelstudien sind auf dem YouTube-Kanal des Verbandes verfügbar, zugänglich für jeden, der das Wort studieren möchte.',
@@ -3486,15 +3715,19 @@ function toggleMobileNav() {
 
 // ── FORM SUBMIT ───────────────────────────────────────
 // ═══════════════════════════════════════════════════════════
-//   FORM SUBMISSION via Web3Forms (no backend needed)
+//   FORM SUBMISSION via FormSubmit.co — ZERO setup required
 // ═══════════════════════════════════════════════════════════
-// SETUP (30 seconds, free, 250 emails/month):
-//   1. Go to https://web3forms.com/
-//   2. Enter your email: mocanruben.mr@gmail.com
-//   3. Click "Create Access Key" — you'll receive it instantly by email
-//   4. Paste the key below, replacing YOUR_WEB3FORMS_ACCESS_KEY_HERE
-//   5. Done — every form submission will be emailed directly to your inbox.
-const WEB3FORMS_ACCESS_KEY = 'YOUR_WEB3FORMS_ACCESS_KEY_HERE';
+//   How it works:
+//   1. The form POSTs to https://formsubmit.co/ajax/<your-email>
+//   2. The FIRST TIME someone submits, FormSubmit sends YOU (mocanruben.mr@gmail.com)
+//      a verification email with a "Confirm" link. Click it once and you're set.
+//   3. From then on, every submission lands directly in your inbox. Unlimited, free.
+//   4. To change the recipient email, just change the line below.
+//
+//   For privacy, FormSubmit also lets you obfuscate your email — see formsubmit.co
+//   if you want to use a hashed endpoint instead of the plain email.
+const FORM_EMAIL = 'amedeo.oficial@gmail.com';        // Alătură-te form recipient
+const STUDIO_FORM_EMAIL = 'rubenmocanstudio@gmail.com'; // Studio collaboration form recipient
 
 async function submitForm() {
   const name = document.getElementById('f-name').value.trim();
@@ -3519,35 +3752,34 @@ async function submitForm() {
   }
 
   const payload = {
-    access_key: WEB3FORMS_ACCESS_KEY,
-    subject: 'Cerere alăturare Amedeo — ' + name,
-    from_name: name,
+    _subject: 'Cerere alăturare Amedeo — ' + name,
+    _template: 'table',          // nicely formatted HTML table in the email
+    _captcha: 'false',           // disable FormSubmit's default captcha redirect
     'Nume complet': name,
     'Telefon': phone,
     'Oraș': city,
-    'Domeniu': domain || '—',
+    'Domeniu de interes': domain || '—',
     'Talente / Contribuție': talent || '—',
-    'Limba site': currentLang,
-    botcheck: ''
+    'Limba site': currentLang
   };
 
   try {
-    const res = await fetch('https://api.web3forms.com/submit', {
+    const res = await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(FORM_EMAIL), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify(payload)
     });
     const data = await res.json();
-    if (data.success) {
+    if (data.success === 'true' || data.success === true || res.ok) {
       document.getElementById('join-form').style.display = 'none';
       document.getElementById('form-success').style.display = 'block';
     } else {
       throw new Error(data.message || 'Submission failed');
     }
   } catch (err) {
-    alert(currentLang === 'ro' ? 'A apărut o eroare la trimiterea formularului. Te rugăm încearcă din nou sau scrie-ne direct la mocanruben.mr@gmail.com' :
-          currentLang === 'en' ? 'An error occurred while submitting the form. Please try again or contact us at mocanruben.mr@gmail.com' :
-          'Beim Senden des Formulars ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut oder schreiben Sie an mocanruben.mr@gmail.com');
+    alert(currentLang === 'ro' ? 'A apărut o eroare la trimitere. Te rugăm încearcă din nou sau scrie-ne direct la ' + FORM_EMAIL :
+          currentLang === 'en' ? 'An error occurred while submitting. Please try again or contact us at ' + FORM_EMAIL :
+          'Beim Senden ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut oder schreiben Sie an ' + FORM_EMAIL);
     if (submitBtn) {
       submitBtn.disabled = false;
       submitBtn.textContent = originalText;
@@ -3713,6 +3945,139 @@ function updateBranchesStage(page, stage, p) {
   });
 }
 
+// ─── Studio collaboration form (separate inbox: STUDIO_FORM_EMAIL) ───
+async function submitStudioForm() {
+  const name = document.getElementById('s-name').value.trim();
+  const email = document.getElementById('s-email').value.trim();
+  const phone = document.getElementById('s-phone').value.trim();
+  const type = document.getElementById('s-type').value;
+  const message = document.getElementById('s-message').value.trim();
+
+  if (!name || !email || !message) {
+    alert(currentLang === 'ro' ? 'Te rugăm completează numele, emailul și detaliile proiectului.' :
+          currentLang === 'en' ? 'Please fill in name, email, and project details.' :
+          'Bitte Name, E-Mail und Projektdetails ausfüllen.');
+    return;
+  }
+  // Quick email format check
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert(currentLang === 'ro' ? 'Te rugăm introdu o adresă de email validă.' :
+          currentLang === 'en' ? 'Please enter a valid email address.' :
+          'Bitte gültige E-Mail-Adresse eingeben.');
+    return;
+  }
+
+  const submitBtn = document.querySelector('#studio-form button.btn-primary');
+  const originalText = submitBtn ? submitBtn.textContent : '';
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = currentLang === 'ro' ? 'Se trimite…' :
+                            currentLang === 'en' ? 'Sending…' : 'Wird gesendet…';
+  }
+
+  const payload = {
+    _subject: 'Studio Amedeo — cerere colaborare de la ' + name,
+    _template: 'table',
+    _captcha: 'false',
+    _replyto: email,
+    'Nume / Proiect': name,
+    'Email': email,
+    'Telefon': phone || '—',
+    'Tip proiect': type,
+    'Detalii proiect': message,
+    'Limba site': currentLang
+  };
+
+  try {
+    const res = await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(STUDIO_FORM_EMAIL), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success === 'true' || data.success === true || res.ok) {
+      document.getElementById('studio-form').style.display = 'none';
+      document.getElementById('studio-form-success').style.display = 'block';
+    } else {
+      throw new Error(data.message || 'Submission failed');
+    }
+  } catch (err) {
+    alert(currentLang === 'ro' ? 'A apărut o eroare la trimitere. Scrie-ne direct la ' + STUDIO_FORM_EMAIL :
+          currentLang === 'en' ? 'An error occurred while submitting. Please contact us at ' + STUDIO_FORM_EMAIL :
+          'Beim Senden ist ein Fehler aufgetreten. Bitte schreiben Sie an ' + STUDIO_FORM_EMAIL);
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//   DOMAINS-SECTION VIDEO AUDIO: scroll-driven fade in/out
+// ═══════════════════════════════════════════════════════════
+const MAX_VIDEO_VOLUME = 0.85;             // top volume when section is centered
+let videoAudioEnabled = false;             // user-toggled (off until first click)
+let videoUserInteracted = false;           // first scroll/touch satisfies browser autoplay policy
+
+function getDomainsVisibility() {
+  const section = document.querySelector('.domains-section');
+  if (!section) return 0;
+  const r = section.getBoundingClientRect();
+  const vh = window.innerHeight;
+  const visible = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0));
+  return clamp01(visible / vh);
+}
+
+function visibilityToVolume(v) {
+  // Volume ramps up between visibility 0.10 and 0.55, then holds at MAX
+  if (v < 0.10) return 0;
+  if (v > 0.55) return MAX_VIDEO_VOLUME;
+  return ((v - 0.10) / 0.45) * MAX_VIDEO_VOLUME;
+}
+
+function updateDomainsAudio() {
+  const video = document.getElementById('domains-video');
+  if (!video) return;
+  const v = getDomainsVisibility();
+  const targetVol = videoAudioEnabled ? visibilityToVolume(v) : 0;
+
+  // Smooth approach to target (gentle fade)
+  const curr = video.volume || 0;
+  const newVol = curr + (targetVol - curr) * 0.25;
+  video.volume = Math.max(0, Math.min(1, newVol));
+
+  // Auto-mute when entirely out of view (saves browser resources)
+  if (videoAudioEnabled && v < 0.05) {
+    if (!video.muted) video.muted = true;
+  } else if (videoAudioEnabled && v >= 0.05) {
+    if (video.muted) video.muted = false;
+  }
+}
+
+function toggleVideoAudio() {
+  const video = document.getElementById('domains-video');
+  const btn = document.getElementById('video-audio-toggle');
+  if (!video || !btn) return;
+
+  videoUserInteracted = true;
+  videoAudioEnabled = !videoAudioEnabled;
+  btn.classList.toggle('muted', !videoAudioEnabled);
+  btn.classList.remove('pulse'); // pulse hint no longer needed once user interacted
+
+  if (videoAudioEnabled) {
+    video.muted = false;
+    // Ensure playback is active (Safari sometimes pauses muted background videos)
+    const playPromise = video.play();
+    if (playPromise && playPromise.catch) playPromise.catch(() => {});
+    btn.setAttribute('aria-label', 'Dezactivează sunetul video');
+  } else {
+    video.muted = true;
+    video.volume = 0;
+    btn.setAttribute('aria-label', 'Activează sunetul video');
+  }
+  updateDomainsAudio();
+}
+
 let cineTicking = false;
 function onScrollCinematic() {
   if (cineTicking) return;
@@ -3723,16 +4088,78 @@ function onScrollCinematic() {
       const stage = activePage.querySelector('.cine-stage');
       updateCinematic(stage);
     }
-    // Hero bg photo fade on home page
+    // Hero bg photo: sharp at top, progressively blurs & fades on scroll.
+    // Choreography (relative to viewport height):
+    //   0   – 0.15  → SHARP, full opacity   (user sees who's in the photo)
+    //   0.15 – 0.70 → blur 0 → 22px, op 1 → 0.85
+    //   0.70 – 1.00 → blur 22 → 28px, op 0.85 → 0
     const heroBg = document.getElementById('hero-bg-photo');
     if (heroBg && heroBg.offsetParent !== null) {
       const y = window.scrollY || window.pageYOffset;
       const vh = window.innerHeight;
-      const op = clamp01(1 - (y / (vh * 0.8)));
+      const p = clamp01(y / vh);
+      let blur, op, bri;
+      if (p < 0.15) {
+        blur = 0;
+        op = 1;
+        bri = 0.86;
+      } else if (p < 0.70) {
+        const t = (p - 0.15) / 0.55;
+        const e = easeInOut(t);
+        blur = e * 22;
+        op = 1 - e * 0.15;
+        bri = 0.86 - e * 0.10;
+      } else {
+        const t = (p - 0.70) / 0.30;
+        const e = easeInOut(t);
+        blur = 22 + e * 6;
+        op = 0.85 * (1 - e);
+        bri = 0.76 - e * 0.08;
+      }
       heroBg.style.setProperty('--hero-bg-op', op.toFixed(3));
+      heroBg.style.setProperty('--hero-blur', blur.toFixed(1) + 'px');
+      heroBg.style.setProperty('--hero-bri', bri.toFixed(3));
+
+      // Hero content (logo + text) fades a touch faster + slight upward parallax
+      const heroContent = heroBg.parentElement.querySelector('.hero-content');
+      if (heroContent) {
+        const cOp = clamp01(1 - (p - 0.10) / 0.65);
+        const cY = -clamp01((p - 0.05) / 0.75) * 40;
+        heroContent.style.setProperty('--hero-content-op', cOp.toFixed(3));
+        heroContent.style.setProperty('--hero-content-y', cY.toFixed(1) + 'px');
+      }
     }
+
+    // Domains video: fade volume in/out based on how much of the section is visible.
+    updateDomainsAudio();
     cineTicking = false;
   });
+}
+
+// Auto-enable video audio on first user interaction (browser autoplay policy).
+// Tries to unmute silently — if the browser blocks, the toggle button is still available.
+function tryAutoEnableVideoAudio() {
+  if (videoUserInteracted) return;
+  videoUserInteracted = true;
+  const video = document.getElementById('domains-video');
+  const btn = document.getElementById('video-audio-toggle');
+  if (!video) return;
+  videoAudioEnabled = true;
+  video.muted = false;
+  const playPromise = video.play();
+  if (playPromise && playPromise.catch) {
+    playPromise.catch(() => {
+      // Browser refused to play unmuted — revert and let user click toggle manually
+      video.muted = true;
+      videoAudioEnabled = false;
+      if (btn) btn.classList.add('muted');
+    });
+  }
+  if (btn) {
+    btn.classList.toggle('muted', !videoAudioEnabled);
+    btn.classList.remove('pulse');
+  }
+  updateDomainsAudio();
 }
 
 // ── INIT ──────────────────────────────────────────────
@@ -3743,6 +4170,11 @@ document.addEventListener('DOMContentLoaded', function() {
   // Hook up cinematic scroll listener
   window.addEventListener('scroll', onScrollCinematic, { passive: true });
   window.addEventListener('resize', onScrollCinematic, { passive: true });
+
+  // First user gesture enables video audio (works around browser autoplay policy)
+  ['scroll', 'click', 'touchstart', 'keydown'].forEach(ev => {
+    window.addEventListener(ev, tryAutoEnableVideoAudio, { once: true, passive: true });
+  });
 
   // Initial pass
   onScrollCinematic();
