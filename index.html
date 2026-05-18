@@ -3166,25 +3166,35 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
       <div class="teal-divider"></div>
       <p class="section-desc" data-i18n="stu.cta.desc">Contactează-ne pentru detalii despre disponibilitate, sesiuni de înregistrare și colaborări.</p>
 
-      <div class="join-form" id="studio-form" style="text-align:left; margin-top: 32px;">
+      <form class="join-form" id="studio-form" style="text-align:left; margin-top: 32px;"
+            action="https://formsubmit.co/rubenmocanstudio@gmail.com"
+            method="POST"
+            onsubmit="return submitStudioForm(event)">
+        <input type="hidden" name="_subject" value="Studio Amedeo — cerere colaborare">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_honey" value="">
+        <input type="hidden" name="_next" id="s-next" value="">
+        <input type="hidden" name="Limba site" id="s-lang" value="ro">
+
         <div class="form-row">
           <div class="form-group">
             <label class="form-label" data-i18n="stu.form.name">Nume / Proiect</label>
-            <input class="form-input" type="text" id="s-name" placeholder="Nume sau formație">
+            <input class="form-input" type="text" id="s-name" name="Nume / Proiect" placeholder="Nume sau formație" required>
           </div>
           <div class="form-group">
             <label class="form-label" data-i18n="stu.form.email">Email</label>
-            <input class="form-input" type="email" id="s-email" placeholder="email@example.com">
+            <input class="form-input" type="email" id="s-email" name="Email" placeholder="email@example.com" required>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label" data-i18n="stu.form.phone">Telefon</label>
-            <input class="form-input" type="tel" id="s-phone" placeholder="+40 7xx xxx xxx">
+            <input class="form-input" type="tel" id="s-phone" name="Telefon" placeholder="+40 7xx xxx xxx">
           </div>
           <div class="form-group">
             <label class="form-label" data-i18n="stu.form.type">Tip proiect</label>
-            <select class="form-input form-select" id="s-type">
+            <select class="form-input form-select" id="s-type" name="Tip proiect">
               <option value="muzica" data-i18n="stu.form.type.music">Muzică / Album</option>
               <option value="predica" data-i18n="stu.form.type.sermon">Predică / Voce</option>
               <option value="podcast" data-i18n="stu.form.type.podcast">Podcast</option>
@@ -3195,12 +3205,12 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
         </div>
         <div class="form-group">
           <label class="form-label" data-i18n="stu.form.message">Detalii proiect</label>
-          <textarea class="form-textarea" id="s-message" placeholder="Spune-ne mai multe despre proiect — durată estimată, dată dorită, stil muzical, observații…"></textarea>
+          <textarea class="form-textarea" id="s-message" name="Detalii proiect" placeholder="Spune-ne mai multe despre proiect — durată estimată, dată dorită, stil muzical, observații…" required></textarea>
         </div>
         <div style="text-align:center; margin-top: 20px;">
-          <button type="button" class="btn-primary" onclick="submitStudioForm()" data-i18n="stu.cta.btn">Trimite cererea</button>
+          <button type="submit" class="btn-primary" data-i18n="stu.cta.btn">Trimite cererea</button>
         </div>
-      </div>
+      </form>
 
       <div id="studio-form-success" style="display:none; padding: 40px 20px;">
         <div style="font-size: 48px; margin-bottom: 16px;">✓</div>
@@ -3292,28 +3302,39 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
 
   <div class="content-section" style="max-width:760px;">
 
-    <div class="join-form" id="join-form">
+    <form class="join-form" id="join-form"
+          action="https://formsubmit.co/amedeo.oficial@gmail.com"
+          method="POST"
+          onsubmit="return submitForm(event)">
+      <!-- FormSubmit hidden config -->
+      <input type="hidden" name="_subject" value="Cerere alăturare Amedeo">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_honey" value=""> <!-- honeypot anti-spam -->
+      <input type="hidden" name="_next" id="f-next" value=""> <!-- set by JS at load -->
+      <input type="hidden" name="Limba site" id="f-lang" value="ro">
+
       <div class="form-row">
         <div class="form-group">
           <label class="form-label" data-i18n="form.name">Nume complet</label>
-          <input class="form-input" type="text" id="f-name" placeholder="Ion Popescu">
+          <input class="form-input" type="text" id="f-name" name="Nume complet" placeholder="Ion Popescu" required>
         </div>
         <div class="form-group">
           <label class="form-label" data-i18n="form.phone">Telefon</label>
-          <input class="form-input" type="tel" id="f-phone" placeholder="+40 7xx xxx xxx">
+          <input class="form-input" type="tel" id="f-phone" name="Telefon" placeholder="+40 7xx xxx xxx" required>
         </div>
       </div>
       <div class="form-group">
         <label class="form-label" data-i18n="form.city">Oraș</label>
-        <input class="form-input" type="text" id="f-city" placeholder="Cluj-Napoca">
+        <input class="form-input" type="text" id="f-city" name="Oraș" placeholder="Cluj-Napoca" required>
       </div>
       <div class="form-group">
         <label class="form-label" data-i18n="form.talent">Cum poți aduce valoare? Ce talent ai?</label>
-        <textarea class="form-textarea" id="f-talent" placeholder="Descrie talentele sau abilitățile tale și în ce domeniu al asociației crezi că poți contribui — muzică, organizare, evanghelizare, tehnologie, etc."></textarea>
+        <textarea class="form-textarea" id="f-talent" name="Talente / Contribuție" placeholder="Descrie talentele sau abilitățile tale și în ce domeniu al asociației crezi că poți contribui — muzică, organizare, evanghelizare, tehnologie, etc."></textarea>
       </div>
       <div class="form-group">
         <label class="form-label" data-i18n="form.domain">Domeniu de interes principal</label>
-        <select class="form-select" id="f-domain">
+        <select class="form-select" id="f-domain" name="Domeniu de interes">
           <option value="" data-i18n="form.select">Selectează un domeniu…</option>
           <option value="evanghelizare" data-i18n="nav.ev">Evanghelizare</option>
           <option value="recreere" data-i18n="nav.rec">Recreere & Relaxare</option>
@@ -3325,8 +3346,8 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
           <option value="altele" data-i18n="form.other">Altele</option>
         </select>
       </div>
-      <button class="form-submit" onclick="submitForm()" data-i18n="form.submit">Trimite cererea</button>
-    </div>
+      <button type="submit" class="form-submit" data-i18n="form.submit">Trimite cererea</button>
+    </form>
 
     <div class="form-success" id="form-success">
       <div class="success-icon">✝️</div>
@@ -3729,21 +3750,35 @@ function toggleMobileNav() {
 const FORM_EMAIL = 'amedeo.oficial@gmail.com';        // Alătură-te form recipient
 const STUDIO_FORM_EMAIL = 'rubenmocanstudio@gmail.com'; // Studio collaboration form recipient
 
-async function submitForm() {
+// Helper: collect a <form>'s data into a JSON-friendly object (excluding hidden FormSubmit meta keys)
+function formToObject(form) {
+  const fd = new FormData(form);
+  const obj = {};
+  for (const [k, v] of fd.entries()) obj[k] = v;
+  return obj;
+}
+
+// Submit the Alătură-te form. Triggered by <form onsubmit>.
+// Returns false ALWAYS to prevent the default native submit; if fetch fails (e.g. file:// CORS),
+// we explicitly call form.submit() which bypasses onsubmit and does the traditional POST.
+async function submitForm(event) {
+  if (event) event.preventDefault();
+  const form = document.getElementById('join-form');
+  const langField = document.getElementById('f-lang');
+  if (langField) langField.value = currentLang;
+
   const name = document.getElementById('f-name').value.trim();
   const phone = document.getElementById('f-phone').value.trim();
   const city = document.getElementById('f-city').value.trim();
-  const talent = document.getElementById('f-talent').value.trim();
-  const domain = document.getElementById('f-domain').value;
 
   if (!name || !phone || !city) {
     alert(currentLang === 'ro' ? 'Te rugăm completează numele, telefonul și orașul.' :
           currentLang === 'en' ? 'Please fill in name, phone, and city.' :
           'Bitte Name, Telefon und Stadt ausfüllen.');
-    return;
+    return false;
   }
 
-  const submitBtn = document.querySelector('#join-form button.btn-primary');
+  const submitBtn = form.querySelector('button[type="submit"]');
   const originalText = submitBtn ? submitBtn.textContent : '';
   if (submitBtn) {
     submitBtn.disabled = true;
@@ -3751,18 +3786,11 @@ async function submitForm() {
                             currentLang === 'en' ? 'Sending…' : 'Wird gesendet…';
   }
 
-  const payload = {
-    _subject: 'Cerere alăturare Amedeo — ' + name,
-    _template: 'table',          // nicely formatted HTML table in the email
-    _captcha: 'false',           // disable FormSubmit's default captcha redirect
-    'Nume complet': name,
-    'Telefon': phone,
-    'Oraș': city,
-    'Domeniu de interes': domain || '—',
-    'Talente / Contribuție': talent || '—',
-    'Limba site': currentLang
-  };
+  const payload = formToObject(form);
+  payload._subject = 'Cerere alăturare Amedeo — ' + name;
 
+  // Strategy: try fetch first (gives smooth inline success on http(s)://).
+  // If it fails (CORS on file://, network error, etc.) fall back to native form submit.
   try {
     const res = await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(FORM_EMAIL), {
       method: 'POST',
@@ -3771,19 +3799,17 @@ async function submitForm() {
     });
     const data = await res.json();
     if (data.success === 'true' || data.success === true || res.ok) {
-      document.getElementById('join-form').style.display = 'none';
+      form.style.display = 'none';
       document.getElementById('form-success').style.display = 'block';
-    } else {
-      throw new Error(data.message || 'Submission failed');
+      return false;
     }
+    throw new Error(data.message || 'Bad response');
   } catch (err) {
-    alert(currentLang === 'ro' ? 'A apărut o eroare la trimitere. Te rugăm încearcă din nou sau scrie-ne direct la ' + FORM_EMAIL :
-          currentLang === 'en' ? 'An error occurred while submitting. Please try again or contact us at ' + FORM_EMAIL :
-          'Beim Senden ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut oder schreiben Sie an ' + FORM_EMAIL);
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.textContent = originalText;
-    }
+    // Fallback: native form submission. This always works (no CORS),
+    // but does a full-page navigation to FormSubmit's thank-you page.
+    console.warn('Fetch submit failed, falling back to native form POST:', err.message);
+    form.submit();
+    return false;
   }
 }
 
@@ -3946,28 +3972,30 @@ function updateBranchesStage(page, stage, p) {
 }
 
 // ─── Studio collaboration form (separate inbox: STUDIO_FORM_EMAIL) ───
-async function submitStudioForm() {
+async function submitStudioForm(event) {
+  if (event) event.preventDefault();
+  const form = document.getElementById('studio-form');
+  const langField = document.getElementById('s-lang');
+  if (langField) langField.value = currentLang;
+
   const name = document.getElementById('s-name').value.trim();
   const email = document.getElementById('s-email').value.trim();
-  const phone = document.getElementById('s-phone').value.trim();
-  const type = document.getElementById('s-type').value;
   const message = document.getElementById('s-message').value.trim();
 
   if (!name || !email || !message) {
     alert(currentLang === 'ro' ? 'Te rugăm completează numele, emailul și detaliile proiectului.' :
           currentLang === 'en' ? 'Please fill in name, email, and project details.' :
           'Bitte Name, E-Mail und Projektdetails ausfüllen.');
-    return;
+    return false;
   }
-  // Quick email format check
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     alert(currentLang === 'ro' ? 'Te rugăm introdu o adresă de email validă.' :
           currentLang === 'en' ? 'Please enter a valid email address.' :
           'Bitte gültige E-Mail-Adresse eingeben.');
-    return;
+    return false;
   }
 
-  const submitBtn = document.querySelector('#studio-form button.btn-primary');
+  const submitBtn = form.querySelector('button[type="submit"]');
   const originalText = submitBtn ? submitBtn.textContent : '';
   if (submitBtn) {
     submitBtn.disabled = true;
@@ -3975,18 +4003,9 @@ async function submitStudioForm() {
                             currentLang === 'en' ? 'Sending…' : 'Wird gesendet…';
   }
 
-  const payload = {
-    _subject: 'Studio Amedeo — cerere colaborare de la ' + name,
-    _template: 'table',
-    _captcha: 'false',
-    _replyto: email,
-    'Nume / Proiect': name,
-    'Email': email,
-    'Telefon': phone || '—',
-    'Tip proiect': type,
-    'Detalii proiect': message,
-    'Limba site': currentLang
-  };
+  const payload = formToObject(form);
+  payload._subject = 'Studio Amedeo — cerere colaborare de la ' + name;
+  payload._replyto = email;
 
   try {
     const res = await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(STUDIO_FORM_EMAIL), {
@@ -3996,19 +4015,15 @@ async function submitStudioForm() {
     });
     const data = await res.json();
     if (data.success === 'true' || data.success === true || res.ok) {
-      document.getElementById('studio-form').style.display = 'none';
+      form.style.display = 'none';
       document.getElementById('studio-form-success').style.display = 'block';
-    } else {
-      throw new Error(data.message || 'Submission failed');
+      return false;
     }
+    throw new Error(data.message || 'Bad response');
   } catch (err) {
-    alert(currentLang === 'ro' ? 'A apărut o eroare la trimitere. Scrie-ne direct la ' + STUDIO_FORM_EMAIL :
-          currentLang === 'en' ? 'An error occurred while submitting. Please contact us at ' + STUDIO_FORM_EMAIL :
-          'Beim Senden ist ein Fehler aufgetreten. Bitte schreiben Sie an ' + STUDIO_FORM_EMAIL);
-    if (submitBtn) {
-      submitBtn.disabled = false;
-      submitBtn.textContent = originalText;
-    }
+    console.warn('Fetch submit failed, falling back to native form POST:', err.message);
+    form.submit();
+    return false;
   }
 }
 
@@ -4162,10 +4177,48 @@ function tryAutoEnableVideoAudio() {
   updateDomainsAudio();
 }
 
+// ─── Set up FormSubmit _next redirect URLs (only useful on http(s)://) ───
+// When the page is published on a real URL (e.g. GitHub Pages), after a native form POST
+// FormSubmit will redirect the user back here with a hash like #join-success or #studio-success,
+// and the next handler shows the inline success state.
+function setupFormRedirects() {
+  const loc = window.location;
+  if (!loc.protocol.startsWith('http')) return;  // file:// can't be redirected back to
+  const base = loc.origin + loc.pathname;
+  const fNext = document.getElementById('f-next');
+  if (fNext) fNext.value = base + '#join-success';
+  const sNext = document.getElementById('s-next');
+  if (sNext) sNext.value = base + '#studio-success';
+}
+
+// Show form success state if landed via _next redirect
+function handleSuccessHash() {
+  const h = window.location.hash;
+  if (h === '#join-success') {
+    showPage('alatura');
+    setTimeout(() => {
+      const f = document.getElementById('join-form');
+      const s = document.getElementById('form-success');
+      if (f && s) { f.style.display = 'none'; s.style.display = 'block'; }
+    }, 150);
+    history.replaceState(null, '', window.location.pathname);
+  } else if (h === '#studio-success') {
+    showPage('studio');
+    setTimeout(() => {
+      const f = document.getElementById('studio-form');
+      const s = document.getElementById('studio-form-success');
+      if (f && s) { f.style.display = 'none'; s.style.display = 'block'; }
+    }, 150);
+    history.replaceState(null, '', window.location.pathname);
+  }
+}
+
 // ── INIT ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
   initReveal();
   setLang('ro');
+  setupFormRedirects();
+  handleSuccessHash();
 
   // Hook up cinematic scroll listener
   window.addEventListener('scroll', onScrollCinematic, { passive: true });
