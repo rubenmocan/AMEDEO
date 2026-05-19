@@ -1169,6 +1169,290 @@ nav {
   border-radius: 1px;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   CONNECT & DONATE SECTION  (social media + donations on home)
+   ═══════════════════════════════════════════════════════════ */
+.connect-section {
+  padding: 100px 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.connect-section .section-label {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.connect-section .section-title {
+  text-align: center;
+  font-family: var(--serif);
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 300;
+  color: var(--navy);
+  margin-bottom: 16px;
+  line-height: 1.1;
+}
+
+.connect-section .section-desc {
+  text-align: center;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--text-soft);
+  max-width: 580px;
+  margin: 0 auto 56px;
+  line-height: 1.7;
+}
+
+/* ── SOCIAL MEDIA CARDS ── */
+.socials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 100px;
+}
+
+.social-card {
+  background: rgba(255,255,255,0.85);
+  border: 1px solid rgba(42,157,168,0.12);
+  border-radius: 16px;
+  padding: 36px 28px;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.35s cubic-bezier(.2,.7,.2,1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.social-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--social-color, var(--teal)) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.social-card > * { position: relative; z-index: 1; }
+
+.social-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 30px 60px rgba(13,27,42,0.15);
+  border-color: var(--social-color, var(--teal));
+}
+.social-card:hover::before { opacity: 0.08; }
+.social-card:hover .social-icon { transform: scale(1.08); }
+
+.social-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--social-color, var(--teal));
+  color: white;
+  transition: transform 0.3s ease;
+}
+.social-icon svg { width: 28px; height: 28px; }
+
+.social-name {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--navy);
+}
+
+.social-handle {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  color: var(--text-soft);
+}
+
+.social-card.fb { --social-color: #1877F2; }
+.social-card.ig { --social-color: #E1306C; }
+.social-card.yt { --social-color: #FF0000; }
+
+/* ── DONATIONS CARDS ── */
+.donations-block {
+  background: linear-gradient(135deg, rgba(42,157,168,0.04) 0%, rgba(42,157,168,0.01) 100%);
+  border: 1px solid rgba(42,157,168,0.12);
+  border-radius: 24px;
+  padding: 60px 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.donations-block::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  right: -80px;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(42,157,168,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.donations-verse {
+  text-align: center;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(15px, 1.8vw, 18px);
+  color: var(--text-mid);
+  max-width: 560px;
+  margin: 0 auto 12px;
+  line-height: 1.6;
+}
+.donations-verse cite {
+  display: block;
+  font-family: var(--sans);
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-top: 6px;
+}
+
+.donations-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 40px;
+}
+
+.donation-card {
+  background: rgba(255,255,255,0.95);
+  border: 1px solid rgba(42,157,168,0.15);
+  border-radius: 16px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: all 0.3s ease;
+}
+.donation-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(42,157,168,0.35);
+  box-shadow: 0 20px 40px rgba(13,27,42,0.08);
+}
+
+.donation-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(42,157,168,0.1);
+}
+
+.donation-flag {
+  width: 36px;
+  height: 26px;
+  border-radius: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+.donation-flag svg { width: 100%; height: 100%; display: block; }
+
+.donation-currency {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--navy);
+  line-height: 1;
+}
+.donation-currency-label {
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  margin-top: 4px;
+}
+
+.donation-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.donation-label {
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+.donation-value {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--navy);
+  word-break: break-word;
+}
+.donation-iban {
+  font-family: 'Courier New', 'SF Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--navy);
+  padding: 8px 10px;
+  background: rgba(42,157,168,0.06);
+  border-radius: 8px;
+  border: 1px dashed rgba(42,157,168,0.25);
+  user-select: all;
+}
+
+.copy-iban-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--teal-dark);
+  background: rgba(42,157,168,0.08);
+  border: 1px solid rgba(42,157,168,0.25);
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-top: 4px;
+}
+.copy-iban-btn:hover {
+  background: var(--teal);
+  color: white;
+  border-color: var(--teal);
+}
+.copy-iban-btn svg { width: 14px; height: 14px; }
+.copy-iban-btn.copied {
+  background: #2e7d32;
+  color: white;
+  border-color: #2e7d32;
+}
+
+@media (max-width: 900px) {
+  .socials-grid { grid-template-columns: 1fr; }
+  .donations-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .connect-section { padding: 60px 24px; }
+  .donations-block { padding: 36px 22px; border-radius: 18px; }
+}
+
 /* ── VERSE BANNER ── */
 .verse-banner {
   background: linear-gradient(135deg, rgba(42,157,168,0.06) 0%, rgba(42,157,168,0.02) 100%);
@@ -2473,6 +2757,189 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
     </div>
   </section>
 
+  <!-- ── CONNECT & DONATE SECTION ── -->
+  <section class="connect-section">
+    <div class="section-label reveal" data-i18n="connect.label">Conectează-te</div>
+    <h2 class="section-title reveal" data-i18n="connect.title">Urmărește-ne</h2>
+    <div class="teal-divider"></div>
+    <p class="section-desc reveal" data-i18n="connect.desc">Fii aproape de comunitatea Amedeo pe rețelele sociale — postăm momente, mărturii, evenimente și gânduri spirituale.</p>
+
+    <div class="socials-grid">
+      <a class="social-card fb reveal" href="https://www.facebook.com/amedeo.oficial/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+        <div class="social-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+          </svg>
+        </div>
+        <div class="social-name">Facebook</div>
+        <div class="social-handle">@amedeo.oficial</div>
+      </a>
+
+      <a class="social-card ig reveal" href="https://www.instagram.com/amedeo.oficial/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+        <div class="social-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+          </svg>
+        </div>
+        <div class="social-name">Instagram</div>
+        <div class="social-handle">@amedeo.oficial</div>
+      </a>
+
+      <a class="social-card yt reveal" href="https://www.youtube.com/c/AmedeoOficial" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+        <div class="social-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+        </div>
+        <div class="social-name">YouTube</div>
+        <div class="social-handle">@AmedeoOficial</div>
+      </a>
+    </div>
+
+    <!-- ── DONATIONS ── -->
+    <div class="section-label reveal" data-i18n="donate.label">Susținere</div>
+    <h2 class="section-title reveal" data-i18n="donate.title">Susține lucrarea</h2>
+    <div class="teal-divider"></div>
+    <p class="section-desc reveal" data-i18n="donate.desc">Dărnicia ta ne ajută să ducem mai departe vestea Evangheliei — prin tabere, evenimente, misiuni și prezență în comunitate.</p>
+
+    <div class="donations-block reveal">
+      <p class="donations-verse">
+        <span data-i18n="donate.verse.text">„Fiecare să dea după cum a hotărât în inima lui: nu cu părere de rău sau de silă, căci pe cine dă cu bucurie îl iubește Dumnezeu."</span>
+        <cite data-i18n="donate.verse.cite">2 Corinteni 9:7 · VDC</cite>
+      </p>
+
+      <div class="donations-grid">
+        <!-- RON -->
+        <div class="donation-card">
+          <div class="donation-head">
+            <div class="donation-flag" aria-hidden="true">
+              <svg viewBox="0 0 3 2" xmlns="http://www.w3.org/2000/svg">
+                <rect width="1" height="2" x="0" y="0" fill="#002B7F"/>
+                <rect width="1" height="2" x="1" y="0" fill="#FCD116"/>
+                <rect width="1" height="2" x="2" y="0" fill="#CE1126"/>
+              </svg>
+            </div>
+            <div>
+              <div class="donation-currency">RON</div>
+              <div class="donation-currency-label" data-i18n="donate.currency.ron">Lei · România</div>
+            </div>
+          </div>
+          <div class="donation-row">
+            <div class="donation-label" data-i18n="donate.holder">Titular</div>
+            <div class="donation-value">Asociația Creștină Amedeo</div>
+          </div>
+          <div class="donation-row">
+            <div class="donation-label" data-i18n="donate.bank">Bancă</div>
+            <div class="donation-value">Banca Transilvania</div>
+          </div>
+          <div class="donation-row">
+            <div class="donation-label">IBAN</div>
+            <div class="donation-iban">RO35 BTRL RONC RT05 6537 7301</div>
+          </div>
+          <button class="copy-iban-btn" data-iban="RO35BTRLRONCRT0565377301" onclick="copyIBAN(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            <span class="copy-text" data-i18n="donate.copy">Copiază IBAN</span>
+          </button>
+        </div>
+
+        <!-- EUR -->
+        <div class="donation-card">
+          <div class="donation-head">
+            <div class="donation-flag" aria-hidden="true">
+              <svg viewBox="0 0 3 2" xmlns="http://www.w3.org/2000/svg">
+                <rect width="3" height="2" fill="#003399"/>
+                <g fill="#FFCC00">
+                  <circle cx="1.5" cy="1" r="0.075"/>
+                  <circle cx="1.5" cy="0.4" r="0.075"/>
+                  <circle cx="1.5" cy="1.6" r="0.075"/>
+                  <circle cx="0.9" cy="1" r="0.075"/>
+                  <circle cx="2.1" cy="1" r="0.075"/>
+                  <circle cx="1.02" cy="0.55" r="0.075"/>
+                  <circle cx="1.98" cy="0.55" r="0.075"/>
+                  <circle cx="1.02" cy="1.45" r="0.075"/>
+                  <circle cx="1.98" cy="1.45" r="0.075"/>
+                  <circle cx="0.78" cy="0.7" r="0.075"/>
+                  <circle cx="2.22" cy="0.7" r="0.075"/>
+                  <circle cx="0.78" cy="1.3" r="0.075"/>
+                </g>
+              </svg>
+            </div>
+            <div>
+              <div class="donation-currency">EUR</div>
+              <div class="donation-currency-label" data-i18n="donate.currency.eur">Euro · Internațional</div>
+            </div>
+          </div>
+          <div class="donation-row">
+            <div class="donation-label" data-i18n="donate.holder">Titular</div>
+            <div class="donation-value">Asociația Creștină Amedeo</div>
+          </div>
+          <div class="donation-row">
+            <div class="donation-label" data-i18n="donate.bank">Bancă</div>
+            <div class="donation-value">Banca Transilvania</div>
+          </div>
+          <div class="donation-row">
+            <div class="donation-label">IBAN</div>
+            <div class="donation-iban">RO82 BTRL EURC RT05 6537 7301</div>
+          </div>
+          <div class="donation-row">
+            <div class="donation-label">SWIFT / BIC</div>
+            <div class="donation-value">BTRLRO22</div>
+          </div>
+          <button class="copy-iban-btn" data-iban="RO82BTRLEURCRT0565377301" onclick="copyIBAN(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            <span class="copy-text" data-i18n="donate.copy">Copiază IBAN</span>
+          </button>
+        </div>
+
+        <!-- CHF -->
+        <div class="donation-card">
+          <div class="donation-head">
+            <div class="donation-flag" aria-hidden="true">
+              <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <rect width="32" height="32" fill="#DA291C"/>
+                <rect x="13" y="6" width="6" height="20" fill="#fff"/>
+                <rect x="6" y="13" width="20" height="6" fill="#fff"/>
+              </svg>
+            </div>
+            <div>
+              <div class="donation-currency">CHF</div>
+              <div class="donation-currency-label" data-i18n="donate.currency.chf">Franci · Elveția</div>
+            </div>
+          </div>
+          <div class="donation-row">
+            <div class="donation-label" data-i18n="donate.holder">Titular</div>
+            <div class="donation-value">Asociația Creștină Amedeo</div>
+          </div>
+          <div class="donation-row">
+            <div class="donation-label" data-i18n="donate.bank">Bancă</div>
+            <div class="donation-value">Banca Transilvania</div>
+          </div>
+          <div class="donation-row">
+            <div class="donation-label">IBAN</div>
+            <div class="donation-iban">RO61 BTRL CHFC RT05 6537 7301</div>
+          </div>
+          <div class="donation-row">
+            <div class="donation-label">SWIFT / BIC</div>
+            <div class="donation-value">BTRLRO22</div>
+          </div>
+          <button class="copy-iban-btn" data-iban="RO61BTRLCHFCRT0565377301" onclick="copyIBAN(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            <span class="copy-text" data-i18n="donate.copy">Copiază IBAN</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <div class="verse-banner reveal">
     <blockquote data-i18n="home.verse.text">„Căci Dumnezeu nu ne-a dat un duh de frică, ci de putere, de dragoste și de chibzuință."</blockquote>
     <div class="teal-divider"></div>
@@ -3167,14 +3634,15 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
       <p class="section-desc" data-i18n="stu.cta.desc">Contactează-ne pentru detalii despre disponibilitate, sesiuni de înregistrare și colaborări.</p>
 
       <form class="join-form" id="studio-form" style="text-align:left; margin-top: 32px;"
-            action="https://formsubmit.co/rubenmocanstudio@gmail.com"
+            name="studio"
             method="POST"
+            data-netlify="true"
+            data-netlify-honeypot="bot-field"
             onsubmit="return submitStudioForm(event)">
-        <input type="hidden" name="_subject" value="Studio Amedeo — cerere colaborare">
-        <input type="hidden" name="_template" value="table">
-        <input type="hidden" name="_captcha" value="false">
-        <input type="hidden" name="_honey" value="">
-        <input type="hidden" name="_next" id="s-next" value="">
+        <input type="hidden" name="form-name" value="studio">
+        <p style="position:absolute;left:-9999px;visibility:hidden" aria-hidden="true">
+          <label>Nu completa: <input name="bot-field"></label>
+        </p>
         <input type="hidden" name="Limba site" id="s-lang" value="ro">
 
         <div class="form-row">
@@ -3303,15 +3771,17 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
   <div class="content-section" style="max-width:760px;">
 
     <form class="join-form" id="join-form"
-          action="https://formsubmit.co/amedeo.oficial@gmail.com"
+          name="alatura"
           method="POST"
+          data-netlify="true"
+          data-netlify-honeypot="bot-field"
           onsubmit="return submitForm(event)">
-      <!-- FormSubmit hidden config -->
-      <input type="hidden" name="_subject" value="Cerere alăturare Amedeo">
-      <input type="hidden" name="_template" value="table">
-      <input type="hidden" name="_captcha" value="false">
-      <input type="hidden" name="_honey" value=""> <!-- honeypot anti-spam -->
-      <input type="hidden" name="_next" id="f-next" value=""> <!-- set by JS at load -->
+      <!-- Netlify Forms: required to identify the form at deploy time -->
+      <input type="hidden" name="form-name" value="alatura">
+      <!-- Honeypot for spam bots (hidden from real users via CSS visibility:hidden) -->
+      <p style="position:absolute;left:-9999px;visibility:hidden" aria-hidden="true">
+        <label>Nu completa: <input name="bot-field"></label>
+      </p>
       <input type="hidden" name="Limba site" id="f-lang" value="ro">
 
       <div class="form-row">
@@ -3459,7 +3929,16 @@ const i18n = {
     'fil.verse.cite':'Faptele Apostolilor 1:8 · VDC',
     // Brand / Back
     'footer.brand.name':'Asociația Creștină',
-    'back.home':'Înapoi acasă'
+    'back.home':'Înapoi acasă',
+    // Connect & Donate section
+    'connect.label':'Conectează-te','connect.title':'Urmărește-ne',
+    'connect.desc':'Fii aproape de comunitatea Amedeo pe rețelele sociale — postăm momente, mărturii, evenimente și gânduri spirituale.',
+    'donate.label':'Susținere','donate.title':'Susține lucrarea',
+    'donate.desc':'Dărnicia ta ne ajută să ducem mai departe vestea Evangheliei — prin tabere, evenimente, misiuni și prezență în comunitate.',
+    'donate.verse.text':'„Fiecare să dea după cum a hotărât în inima lui: nu cu părere de rău sau de silă, căci pe cine dă cu bucurie îl iubește Dumnezeu."',
+    'donate.verse.cite':'2 Corinteni 9:7 · VDC',
+    'donate.holder':'Titular','donate.bank':'Bancă','donate.copy':'Copiază IBAN',
+    'donate.currency.ron':'Lei · România','donate.currency.eur':'Euro · Internațional','donate.currency.chf':'Franci · Elveția'
   },
   en: {
     'nav.home':'Home','nav.ev':'Evangelism','nav.rec':'Recreation','nav.tab':'Camps',
@@ -3557,7 +4036,16 @@ const i18n = {
     'fil.verse.cite':'Acts 1:8 · NIV',
     // Brand / Back
     'footer.brand.name':'Christian Association',
-    'back.home':'Back home'
+    'back.home':'Back home',
+    // Connect & Donate section
+    'connect.label':'Connect','connect.title':'Follow us',
+    'connect.desc':'Stay close to the Amedeo community on social media — we share moments, testimonies, events, and spiritual reflections.',
+    'donate.label':'Support','donate.title':'Support our work',
+    'donate.desc':'Your generosity helps us carry the Gospel forward — through camps, events, missions, and presence in the community.',
+    'donate.verse.text':'"Each one must give as he has decided in his heart, not reluctantly or under compulsion, for God loves a cheerful giver."',
+    'donate.verse.cite':'2 Corinthians 9:7 · NIV',
+    'donate.holder':'Account holder','donate.bank':'Bank','donate.copy':'Copy IBAN',
+    'donate.currency.ron':'Lei · Romania','donate.currency.eur':'Euro · International','donate.currency.chf':'Francs · Switzerland'
   },
   de: {
     'nav.home':'Startseite','nav.ev':'Evangelisation','nav.rec':'Erholung','nav.tab':'Freizeiten',
@@ -3655,7 +4143,16 @@ const i18n = {
     'fil.verse.cite':'Apostelgeschichte 1,8 · Luther 2017',
     // Brand / Back
     'footer.brand.name':'Christliche Vereinigung',
-    'back.home':'Zurück zur Startseite'
+    'back.home':'Zurück zur Startseite',
+    // Connect & Donate section
+    'connect.label':'Verbinde dich','connect.title':'Folge uns',
+    'connect.desc':'Bleibe der Amedeo-Gemeinschaft in den sozialen Medien nahe — wir teilen Momente, Zeugnisse, Veranstaltungen und geistliche Gedanken.',
+    'donate.label':'Unterstützung','donate.title':'Unterstütze die Arbeit',
+    'donate.desc':'Deine Großzügigkeit hilft uns, das Evangelium weiterzutragen — durch Freizeiten, Veranstaltungen, Missionen und Präsenz in der Gemeinschaft.',
+    'donate.verse.text':'„Jeder gebe, wie er sich\'s im Herzen vorgenommen hat, nicht mit Unwillen oder aus Zwang; denn einen fröhlichen Geber hat Gott lieb."',
+    'donate.verse.cite':'2. Korinther 9,7 · Luther 2017',
+    'donate.holder':'Kontoinhaber','donate.bank':'Bank','donate.copy':'IBAN kopieren',
+    'donate.currency.ron':'Lei · Rumänien','donate.currency.eur':'Euro · International','donate.currency.chf':'Franken · Schweiz'
   }
 };
 
@@ -3736,31 +4233,32 @@ function toggleMobileNav() {
 
 // ── FORM SUBMIT ───────────────────────────────────────
 // ═══════════════════════════════════════════════════════════
-//   FORM SUBMISSION via FormSubmit.co — ZERO setup required
+//   FORM SUBMISSION via Netlify Forms — hosted on Netlify, forms built-in
 // ═══════════════════════════════════════════════════════════
 //   How it works:
-//   1. The form POSTs to https://formsubmit.co/ajax/<your-email>
-//   2. The FIRST TIME someone submits, FormSubmit sends YOU (mocanruben.mr@gmail.com)
-//      a verification email with a "Confirm" link. Click it once and you're set.
-//   3. From then on, every submission lands directly in your inbox. Unlimited, free.
-//   4. To change the recipient email, just change the line below.
+//   1. Deploy the site to Netlify (drag-and-drop the project folder at
+//      https://app.netlify.com/drop — no signup required for first try).
+//   2. Netlify scans the HTML at deploy time, finds the two <form data-netlify="true">
+//      elements (already configured) and auto-registers them.
+//   3. From Site Dashboard → Forms → Notifications, route submissions per form:
+//        • "alatura"  →  amedeo.oficial@gmail.com
+//        • "studio"   →  rubenmocanstudio@gmail.com
+//   4. Done. 100 submissions/month FREE per site. Spam protection via honeypot below.
+//      No third-party service, no access keys, no confirmation emails.
 //
-//   For privacy, FormSubmit also lets you obfuscate your email — see formsubmit.co
-//   if you want to use a hashed endpoint instead of the plain email.
-const FORM_EMAIL = 'amedeo.oficial@gmail.com';        // Alătură-te form recipient
-const STUDIO_FORM_EMAIL = 'rubenmocanstudio@gmail.com'; // Studio collaboration form recipient
+//   Note: forms only work after deployment (locally file:// can't reach Netlify).
+const FORM_EMAIL        = 'amedeo.oficial@gmail.com';
+const STUDIO_FORM_EMAIL = 'rubenmocanstudio@gmail.com';
 
-// Helper: collect a <form>'s data into a JSON-friendly object (excluding hidden FormSubmit meta keys)
-function formToObject(form) {
+// Helper: encode a <form>'s data as application/x-www-form-urlencoded for Netlify Forms
+function encodeFormData(form) {
   const fd = new FormData(form);
-  const obj = {};
-  for (const [k, v] of fd.entries()) obj[k] = v;
-  return obj;
+  const params = new URLSearchParams();
+  for (const [k, v] of fd.entries()) params.append(k, v);
+  return params.toString();
 }
 
-// Submit the Alătură-te form. Triggered by <form onsubmit>.
-// Returns false ALWAYS to prevent the default native submit; if fetch fails (e.g. file:// CORS),
-// we explicitly call form.submit() which bypasses onsubmit and does the traditional POST.
+// Submit the Alătură-te form via Netlify Forms (POSTs to same page, Netlify intercepts).
 async function submitForm(event) {
   if (event) event.preventDefault();
   const form = document.getElementById('join-form');
@@ -3778,6 +4276,14 @@ async function submitForm(event) {
     return false;
   }
 
+  // If running locally from file://, Netlify can't process — warn the user.
+  if (location.protocol === 'file:') {
+    alert(currentLang === 'ro' ? 'Formularul funcționează doar după publicarea site-ului online (pe Netlify). Acum vizualizezi fișierul local.' :
+          currentLang === 'en' ? 'The form only works once the site is published online (on Netlify). You are currently viewing the local file.' :
+          'Das Formular funktioniert nur, sobald die Website online veröffentlicht ist (auf Netlify). Sie sehen gerade die lokale Datei.');
+    return false;
+  }
+
   const submitBtn = form.querySelector('button[type="submit"]');
   const originalText = submitBtn ? submitBtn.textContent : '';
   if (submitBtn) {
@@ -3786,29 +4292,22 @@ async function submitForm(event) {
                             currentLang === 'en' ? 'Sending…' : 'Wird gesendet…';
   }
 
-  const payload = formToObject(form);
-  payload._subject = 'Cerere alăturare Amedeo — ' + name;
-
-  // Strategy: try fetch first (gives smooth inline success on http(s)://).
-  // If it fails (CORS on file://, network error, etc.) fall back to native form submit.
+  // Netlify Forms expects POST to the SAME URL with form-encoded data
   try {
-    const res = await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(FORM_EMAIL), {
+    const res = await fetch('/', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(payload)
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: encodeFormData(form)
     });
-    const data = await res.json();
-    if (data.success === 'true' || data.success === true || res.ok) {
+    if (res.ok) {
       form.style.display = 'none';
       document.getElementById('form-success').style.display = 'block';
       return false;
     }
-    throw new Error(data.message || 'Bad response');
+    throw new Error('HTTP ' + res.status);
   } catch (err) {
-    // Fallback: native form submission. This always works (no CORS),
-    // but does a full-page navigation to FormSubmit's thank-you page.
-    console.warn('Fetch submit failed, falling back to native form POST:', err.message);
-    form.submit();
+    console.warn('Fetch failed, falling back to native form POST:', err.message);
+    form.submit();   // Netlify will catch this too, then redirects to /
     return false;
   }
 }
@@ -3971,7 +4470,7 @@ function updateBranchesStage(page, stage, p) {
   });
 }
 
-// ─── Studio collaboration form (separate inbox: STUDIO_FORM_EMAIL) ───
+// ─── Studio collaboration form via Netlify Forms ───
 async function submitStudioForm(event) {
   if (event) event.preventDefault();
   const form = document.getElementById('studio-form');
@@ -3995,6 +4494,13 @@ async function submitStudioForm(event) {
     return false;
   }
 
+  if (location.protocol === 'file:') {
+    alert(currentLang === 'ro' ? 'Formularul funcționează doar după publicarea site-ului online (pe Netlify). Acum vizualizezi fișierul local.' :
+          currentLang === 'en' ? 'The form only works once the site is published online (on Netlify).' :
+          'Das Formular funktioniert nur, sobald die Website online veröffentlicht ist.');
+    return false;
+  }
+
   const submitBtn = form.querySelector('button[type="submit"]');
   const originalText = submitBtn ? submitBtn.textContent : '';
   if (submitBtn) {
@@ -4003,25 +4509,20 @@ async function submitStudioForm(event) {
                             currentLang === 'en' ? 'Sending…' : 'Wird gesendet…';
   }
 
-  const payload = formToObject(form);
-  payload._subject = 'Studio Amedeo — cerere colaborare de la ' + name;
-  payload._replyto = email;
-
   try {
-    const res = await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(STUDIO_FORM_EMAIL), {
+    const res = await fetch('/', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(payload)
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: encodeFormData(form)
     });
-    const data = await res.json();
-    if (data.success === 'true' || data.success === true || res.ok) {
+    if (res.ok) {
       form.style.display = 'none';
       document.getElementById('studio-form-success').style.display = 'block';
       return false;
     }
-    throw new Error(data.message || 'Bad response');
+    throw new Error('HTTP ' + res.status);
   } catch (err) {
-    console.warn('Fetch submit failed, falling back to native form POST:', err.message);
+    console.warn('Fetch failed, falling back to native form POST:', err.message);
     form.submit();
     return false;
   }
@@ -4175,6 +4676,39 @@ function tryAutoEnableVideoAudio() {
     btn.classList.remove('pulse');
   }
   updateDomainsAudio();
+}
+
+// ─── Copy IBAN to clipboard with visual feedback ───
+function copyIBAN(btn) {
+  const iban = btn.getAttribute('data-iban') || '';
+  const span = btn.querySelector('.copy-text');
+  const original = span ? span.textContent : '';
+
+  const finish = (ok) => {
+    if (!span) return;
+    btn.classList.toggle('copied', ok);
+    span.textContent = ok
+      ? (currentLang === 'ro' ? 'Copiat!' : currentLang === 'en' ? 'Copied!' : 'Kopiert!')
+      : (currentLang === 'ro' ? 'Eroare' : currentLang === 'en' ? 'Error'   : 'Fehler');
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      span.textContent = original;
+    }, 2000);
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(iban).then(() => finish(true)).catch(() => finish(false));
+  } else {
+    // Fallback for older browsers
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = iban; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      finish(true);
+    } catch (e) { finish(false); }
+  }
 }
 
 // ─── Set up FormSubmit _next redirect URLs (only useful on http(s)://) ───
