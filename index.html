@@ -2442,6 +2442,93 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
   .photo-gallery { gap: 8px; }
 }
 
+/* ═══════════════════════════════════════════════════════════
+   YOUTUBE LIGHTBOX MODAL — opened by clicking ▶ on a cine-video
+   ═══════════════════════════════════════════════════════════ */
+.youtube-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0,0,0,0.92);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(20px, 5vh, 60px) clamp(20px, 5vw, 80px);
+  opacity: 0;
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+}
+.youtube-modal.open {
+  display: flex;
+  animation: ytFadeIn 0.35s cubic-bezier(.2,.7,.2,1) forwards;
+}
+@keyframes ytFadeIn {
+  from { opacity: 0; transform: scale(1.02); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.youtube-modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 1280px;
+  aspect-ratio: 16/9;
+  background: #000;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow:
+    0 60px 120px rgba(0,0,0,0.7),
+    0 0 200px rgba(77,187,198,0.15);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.youtube-modal iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+.youtube-modal-close {
+  position: absolute;
+  top: -54px;
+  right: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.28);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-family: var(--sans);
+  transition: all 0.25s ease;
+  padding: 0;
+}
+.youtube-modal-close:hover {
+  background: var(--teal);
+  border-color: var(--teal-light);
+  transform: scale(1.08);
+}
+.youtube-modal-hint {
+  position: absolute;
+  bottom: -36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--sans);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  white-space: nowrap;
+}
+@media (max-width: 700px) {
+  .youtube-modal { padding: 16px; }
+  .youtube-modal-close { top: 8px; right: 8px; width: 38px; height: 38px; font-size: 16px; }
+  .youtube-modal-hint { display: none; }
+}
+
 /* ── ANIMATIONS ── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(24px); }
@@ -3023,7 +3110,7 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
           <div class="cine-video-glow"></div>
           <div class="cine-video-inner">
             <div class="cine-video-dove">🕊️</div>
-            <div class="cine-video-play" onclick="alert('Adaugă aici videoclipul tău (YouTube embed sau .mp4 local)')">▶</div>
+            <div class="cine-video-play" data-youtube="xBT7CHckEzg" onclick="openYouTube(this)">▶</div>
             <div class="cine-video-label" data-i18n="ev.video.label">Video Evanghelizare</div>
           </div>
         </div>
@@ -3125,7 +3212,7 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
           <div class="cine-video-glow"></div>
           <div class="cine-video-inner">
             <div class="cine-video-dove">🌿</div>
-            <div class="cine-video-play" onclick="alert('Adaugă aici videoclipul tău (YouTube embed sau .mp4 local)')">▶</div>
+            <div class="cine-video-play" data-youtube="placeholder" onclick="openYouTube(this)">▶</div>
             <div class="cine-video-label" data-i18n="rec.video.label">Video Recreere</div>
           </div>
         </div>
@@ -3241,7 +3328,7 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
           <div class="cine-video-glow"></div>
           <div class="cine-video-inner">
             <div class="cine-video-dove">⛺</div>
-            <div class="cine-video-play" onclick="alert('Adaugă aici videoclipul tău (YouTube embed sau .mp4 local)')">▶</div>
+            <div class="cine-video-play" data-youtube="oWx5x_NZ5qw" onclick="openYouTube(this)">▶</div>
             <div class="cine-video-label" data-i18n="tab.video.label">Video Tabără</div>
           </div>
         </div>
@@ -3375,7 +3462,7 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
           <div class="cine-video-glow"></div>
           <div class="cine-video-inner">
             <div class="cine-video-dove">🤝</div>
-            <div class="cine-video-play" onclick="alert('Adaugă aici videoclipul tău (YouTube embed sau .mp4 local)')">▶</div>
+            <div class="cine-video-play" data-youtube="6YXZauARaDY" onclick="openYouTube(this)">▶</div>
             <div class="cine-video-label" data-i18n="mis.video.label">Video Misiuni</div>
           </div>
         </div>
@@ -3580,7 +3667,7 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
           <div class="cine-video-glow"></div>
           <div class="cine-video-inner">
             <div class="cine-video-dove">🎙️</div>
-            <div class="cine-video-play" onclick="alert('Adaugă aici videoclipul tău (YouTube embed sau .mp4 local)')">▶</div>
+            <div class="cine-video-play" data-youtube="placeholder" onclick="openYouTube(this)">▶</div>
             <div class="cine-video-label" data-i18n="stu.video.label">Video Studio</div>
           </div>
         </div>
@@ -3708,7 +3795,7 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
           <div class="cine-video-glow"></div>
           <div class="cine-video-inner">
             <div class="cine-video-dove">📖</div>
-            <div class="cine-video-play" onclick="window.open('https://youtube.com','_blank')">▶</div>
+            <div class="cine-video-play" data-youtube="xZcV6Q-WitM" onclick="openYouTube(this)">▶</div>
             <div class="cine-video-label" data-i18n="bib.video.label">YouTube — Studii Biblice</div>
           </div>
         </div>
@@ -3932,7 +4019,8 @@ const i18n = {
     'donate.verse.text':'„Fiecare să dea după cum a hotărât în inima lui: nu cu părere de rău sau de silă, căci pe cine dă cu bucurie îl iubește Dumnezeu."',
     'donate.verse.cite':'2 Corinteni 9:7 · VDC',
     'donate.holder':'Titular','donate.bank':'Bancă','donate.copy':'Copiază IBAN',
-    'donate.currency.ron':'Lei · România','donate.currency.eur':'Euro · Internațional','donate.currency.chf':'Franci · Elveția'
+    'donate.currency.ron':'Lei · România','donate.currency.eur':'Euro · Internațional','donate.currency.chf':'Franci · Elveția',
+    'yt.hint':'ESC sau click în afară pentru a închide'
   },
   en: {
     'nav.home':'Home','nav.ev':'Evangelism','nav.rec':'Recreation','nav.tab':'Camps',
@@ -4039,7 +4127,8 @@ const i18n = {
     'donate.verse.text':'"Each one must give as he has decided in his heart, not reluctantly or under compulsion, for God loves a cheerful giver."',
     'donate.verse.cite':'2 Corinthians 9:7 · NIV',
     'donate.holder':'Account holder','donate.bank':'Bank','donate.copy':'Copy IBAN',
-    'donate.currency.ron':'Lei · Romania','donate.currency.eur':'Euro · International','donate.currency.chf':'Francs · Switzerland'
+    'donate.currency.ron':'Lei · Romania','donate.currency.eur':'Euro · International','donate.currency.chf':'Francs · Switzerland',
+    'yt.hint':'Press ESC or click outside to close'
   },
   de: {
     'nav.home':'Startseite','nav.ev':'Evangelisation','nav.rec':'Erholung','nav.tab':'Freizeiten',
@@ -4146,7 +4235,8 @@ const i18n = {
     'donate.verse.text':'„Jeder gebe, wie er sich\'s im Herzen vorgenommen hat, nicht mit Unwillen oder aus Zwang; denn einen fröhlichen Geber hat Gott lieb."',
     'donate.verse.cite':'2. Korinther 9,7 · Luther 2017',
     'donate.holder':'Kontoinhaber','donate.bank':'Bank','donate.copy':'IBAN kopieren',
-    'donate.currency.ron':'Lei · Rumänien','donate.currency.eur':'Euro · International','donate.currency.chf':'Franken · Schweiz'
+    'donate.currency.ron':'Lei · Rumänien','donate.currency.eur':'Euro · International','donate.currency.chf':'Franken · Schweiz',
+    'yt.hint':'ESC drücken oder außerhalb klicken zum Schließen'
   }
 };
 
@@ -4282,26 +4372,20 @@ async function submitForm(event) {
   }
 
   try {
-    const res = await fetch(APPS_SCRIPT_URL, {
+    // Use no-cors because Apps Script redirects POSTs to script.googleusercontent.com
+    // which doesn't return CORS headers. With no-cors the browser sends the request,
+    // Apps Script processes it (emails get sent), but JS can't read the response.
+    // We assume success if fetch resolves without a network error.
+    await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: encodeFormData(form),
-      redirect: 'follow'
+      mode: 'no-cors',
+      body: encodeFormData(form)
     });
-    // A 200 from Apps Script means the script ran and the email was sent.
-    let success = res.ok;
-    try {
-      const data = await res.json();
-      success = success && (data.success === true || data.success === 'true');
-    } catch (_) { /* response wasn't JSON — rely on res.ok */ }
-
-    if (success) {
-      form.style.display = 'none';
-      document.getElementById('form-success').style.display = 'block';
-      return false;
-    }
-    throw new Error('HTTP ' + res.status);
+    form.style.display = 'none';
+    document.getElementById('form-success').style.display = 'block';
+    return false;
   } catch (err) {
+    // Only triggers on real network errors (offline, DNS failure, etc.)
     console.warn('Apps Script POST failed:', err.message);
     alert(currentLang === 'ro' ? 'A apărut o eroare la trimitere. Te rugăm încearcă din nou sau scrie-ne la ' + FORM_EMAIL :
           currentLang === 'en' ? 'An error occurred while submitting. Please try again or write to ' + FORM_EMAIL :
@@ -4509,24 +4593,15 @@ async function submitStudioForm(event) {
   }
 
   try {
-    const res = await fetch(APPS_SCRIPT_URL, {
+    // no-cors: same reason as in submitForm — Apps Script redirect lacks CORS headers
+    await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: encodeFormData(form),
-      redirect: 'follow'
+      mode: 'no-cors',
+      body: encodeFormData(form)
     });
-    let success = res.ok;
-    try {
-      const data = await res.json();
-      success = success && (data.success === true || data.success === 'true');
-    } catch (_) { /* response wasn't JSON — rely on res.ok */ }
-
-    if (success) {
-      form.style.display = 'none';
-      document.getElementById('studio-form-success').style.display = 'block';
-      return false;
-    }
-    throw new Error('HTTP ' + res.status);
+    form.style.display = 'none';
+    document.getElementById('studio-form-success').style.display = 'block';
+    return false;
   } catch (err) {
     console.warn('Apps Script POST failed:', err.message);
     alert(currentLang === 'ro' ? 'A apărut o eroare la trimitere. Te rugăm încearcă din nou sau scrie-ne la ' + STUDIO_FORM_EMAIL :
@@ -4688,6 +4763,73 @@ function tryAutoEnableVideoAudio() {
 }
 
 // ─── Copy IBAN to clipboard with visual feedback ───
+// ═══════════════════════════════════════════════════════════
+//   YOUTUBE LIGHTBOX — open/close a YouTube video in a modal overlay
+// ═══════════════════════════════════════════════════════════
+// Extract the 11-char YouTube video ID from any URL format (or pass an ID directly).
+function extractYouTubeId(input) {
+  if (!input) return '';
+  const s = String(input).trim();
+  // youtu.be/<id>
+  let m = s.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
+  if (m) return m[1];
+  // youtube.com/watch?v=<id>
+  m = s.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+  if (m) return m[1];
+  // youtube.com/embed/<id> or youtube.com/shorts/<id>
+  m = s.match(/youtube\.com\/(?:embed|shorts)\/([a-zA-Z0-9_-]{11})/);
+  if (m) return m[1];
+  // Already just an ID
+  if (/^[a-zA-Z0-9_-]{11}$/.test(s)) return s;
+  return '';
+}
+
+function openYouTube(btn) {
+  // Accept either a string (video id/url) or an element with data-youtube attribute
+  const raw = typeof btn === 'string' ? btn : (btn && btn.getAttribute('data-youtube')) || '';
+
+  // Friendly message when the page doesn't have a video yet
+  if (!raw || raw === 'placeholder' || raw === '') {
+    alert(currentLang === 'ro' ? 'Videoclipul pentru această pagină va fi disponibil în curând. Te rugăm revino!' :
+          currentLang === 'en' ? 'The video for this page will be available soon. Please check back!' :
+          'Das Video für diese Seite ist bald verfügbar. Bitte schauen Sie später wieder vorbei!');
+    return;
+  }
+
+  const id = extractYouTubeId(raw);
+  if (!id) {
+    console.warn('Invalid YouTube URL/ID:', raw);
+    return;
+  }
+
+  const modal = document.getElementById('youtube-modal');
+  const iframe = document.getElementById('youtube-iframe');
+  if (!modal || !iframe) return;
+
+  iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden'; // prevent background scroll
+}
+
+function closeYouTube() {
+  const modal = document.getElementById('youtube-modal');
+  const iframe = document.getElementById('youtube-iframe');
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  if (iframe) iframe.src = ''; // stop video playback
+  document.body.style.overflow = '';
+}
+
+// ESC key closes the modal
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('youtube-modal');
+    if (modal && modal.classList.contains('open')) closeYouTube();
+  }
+});
+
 function copyIBAN(btn) {
   const iban = btn.getAttribute('data-iban') || '';
   const span = btn.querySelector('.copy-text');
@@ -4776,5 +4918,15 @@ document.addEventListener('DOMContentLoaded', function() {
   onScrollCinematic();
 });
 </script>
+<!-- ── YOUTUBE LIGHTBOX MODAL (shared across all pages) ── -->
+<div class="youtube-modal" id="youtube-modal" onclick="if(event.target===this) closeYouTube()" aria-hidden="true" role="dialog">
+  <div class="youtube-modal-content">
+    <button class="youtube-modal-close" onclick="closeYouTube()" aria-label="Închide video">✕</button>
+    <iframe id="youtube-iframe" src="" title="Video Amedeo"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen></iframe>
+    <div class="youtube-modal-hint" data-i18n="yt.hint">ESC sau click în afară pentru a închide</div>
+  </div>
+</div>
 </body>
 </html>
