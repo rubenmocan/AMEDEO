@@ -3634,10 +3634,7 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
       <p class="section-desc" data-i18n="stu.cta.desc">Contactează-ne pentru detalii despre disponibilitate, sesiuni de înregistrare și colaborări.</p>
 
       <form class="join-form" id="studio-form" style="text-align:left; margin-top: 32px;"
-            name="studio"
             method="POST"
-            data-netlify="true"
-            data-netlify-honeypot="bot-field"
             onsubmit="return submitStudioForm(event)">
         <input type="hidden" name="form-name" value="studio">
         <p style="position:absolute;left:-9999px;visibility:hidden" aria-hidden="true">
@@ -3771,12 +3768,9 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
   <div class="content-section" style="max-width:760px;">
 
     <form class="join-form" id="join-form"
-          name="alatura"
           method="POST"
-          data-netlify="true"
-          data-netlify-honeypot="bot-field"
           onsubmit="return submitForm(event)">
-      <!-- Netlify Forms: required to identify the form at deploy time -->
+      <!-- form-name routes the submission inside Google Apps Script -->
       <input type="hidden" name="form-name" value="alatura">
       <!-- Honeypot for spam bots (hidden from real users via CSS visibility:hidden) -->
       <p style="position:absolute;left:-9999px;visibility:hidden" aria-hidden="true">
@@ -4233,24 +4227,20 @@ function toggleMobileNav() {
 
 // ── FORM SUBMIT ───────────────────────────────────────
 // ═══════════════════════════════════════════════════════════
-//   FORM SUBMISSION via Netlify Forms — hosted on Netlify, forms built-in
+//   FORM SUBMISSION via Google Apps Script — free, unlimited, no third-party
 // ═══════════════════════════════════════════════════════════
-//   How it works:
-//   1. Deploy the site to Netlify (drag-and-drop the project folder at
-//      https://app.netlify.com/drop — no signup required for first try).
-//   2. Netlify scans the HTML at deploy time, finds the two <form data-netlify="true">
-//      elements (already configured) and auto-registers them.
-//   3. From Site Dashboard → Forms → Notifications, route submissions per form:
-//        • "alatura"  →  amedeo.oficial@gmail.com
-//        • "studio"   →  rubenmocanstudio@gmail.com
-//   4. Done. 100 submissions/month FREE per site. Spam protection via honeypot below.
-//      No third-party service, no access keys, no confirmation emails.
-//
-//   Note: forms only work after deployment (locally file:// can't reach Netlify).
+//   The Apps Script Web App receives all form POSTs and routes them by `form-name`:
+//        • form-name=alatura  →  amedeo.oficial@gmail.com
+//        • form-name=studio   →  rubenmocanstudio@gmail.com
+//   Setup is done. To change the script or recipient, edit apps-script.gs and
+//   redeploy → paste the new URL below.
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxdYbOnZPvbuqcXCdC0mQOs5YddzYqox4BJIx2I1fn2F7AlD2B_rhlK8TlkUlIS0eCa/exec';
+
+// Display addresses (used only in error messages, not for routing — routing is in the script)
 const FORM_EMAIL        = 'amedeo.oficial@gmail.com';
 const STUDIO_FORM_EMAIL = 'rubenmocanstudio@gmail.com';
 
-// Helper: encode a <form>'s data as application/x-www-form-urlencoded for Netlify Forms
+// Helper: encode a <form>'s data as application/x-www-form-urlencoded for Apps Script
 function encodeFormData(form) {
   const fd = new FormData(form);
   const params = new URLSearchParams();
@@ -4258,7 +4248,7 @@ function encodeFormData(form) {
   return params.toString();
 }
 
-// Submit the Alătură-te form via Netlify Forms (POSTs to same page, Netlify intercepts).
+// Submit the Alătură-te form via Google Apps Script backend.
 async function submitForm(event) {
   if (event) event.preventDefault();
   const form = document.getElementById('join-form');
@@ -4276,11 +4266,10 @@ async function submitForm(event) {
     return false;
   }
 
-  // If running locally from file://, Netlify can't process — warn the user.
-  if (location.protocol === 'file:') {
-    alert(currentLang === 'ro' ? 'Formularul funcționează doar după publicarea site-ului online (pe Netlify). Acum vizualizezi fișierul local.' :
-          currentLang === 'en' ? 'The form only works once the site is published online (on Netlify). You are currently viewing the local file.' :
-          'Das Formular funktioniert nur, sobald die Website online veröffentlicht ist (auf Netlify). Sie sehen gerade die lokale Datei.');
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.startsWith('PASTE_')) {
+    alert(currentLang === 'ro' ? 'Backend-ul de formulare nu este configurat. Lipsește URL-ul Google Apps Script.' :
+          currentLang === 'en' ? 'Form backend is not configured. Apps Script URL is missing.' :
+          'Formular-Backend ist nicht konfiguriert. Apps-Script-URL fehlt.');
     return false;
   }
 
@@ -4292,22 +4281,32 @@ async function submitForm(event) {
                             currentLang === 'en' ? 'Sending…' : 'Wird gesendet…';
   }
 
-  // Netlify Forms expects POST to the SAME URL with form-encoded data
   try {
-    const res = await fetch('/', {
+    const res = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: encodeFormData(form)
+      body: encodeFormData(form),
+      redirect: 'follow'
     });
-    if (res.ok) {
+    // A 200 from Apps Script means the script ran and the email was sent.
+    let success = res.ok;
+    try {
+      const data = await res.json();
+      success = success && (data.success === true || data.success === 'true');
+    } catch (_) { /* response wasn't JSON — rely on res.ok */ }
+
+    if (success) {
       form.style.display = 'none';
       document.getElementById('form-success').style.display = 'block';
       return false;
     }
     throw new Error('HTTP ' + res.status);
   } catch (err) {
-    console.warn('Fetch failed, falling back to native form POST:', err.message);
-    form.submit();   // Netlify will catch this too, then redirects to /
+    console.warn('Apps Script POST failed:', err.message);
+    alert(currentLang === 'ro' ? 'A apărut o eroare la trimitere. Te rugăm încearcă din nou sau scrie-ne la ' + FORM_EMAIL :
+          currentLang === 'en' ? 'An error occurred while submitting. Please try again or write to ' + FORM_EMAIL :
+          'Beim Senden ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut oder schreiben Sie an ' + FORM_EMAIL);
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalText; }
     return false;
   }
 }
@@ -4470,7 +4469,7 @@ function updateBranchesStage(page, stage, p) {
   });
 }
 
-// ─── Studio collaboration form via Netlify Forms ───
+// ─── Studio collaboration form via Google Apps Script ───
 async function submitStudioForm(event) {
   if (event) event.preventDefault();
   const form = document.getElementById('studio-form');
@@ -4494,10 +4493,10 @@ async function submitStudioForm(event) {
     return false;
   }
 
-  if (location.protocol === 'file:') {
-    alert(currentLang === 'ro' ? 'Formularul funcționează doar după publicarea site-ului online (pe Netlify). Acum vizualizezi fișierul local.' :
-          currentLang === 'en' ? 'The form only works once the site is published online (on Netlify).' :
-          'Das Formular funktioniert nur, sobald die Website online veröffentlicht ist.');
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.startsWith('PASTE_')) {
+    alert(currentLang === 'ro' ? 'Backend-ul de formulare nu este configurat. Lipsește URL-ul Google Apps Script.' :
+          currentLang === 'en' ? 'Form backend is not configured. Apps Script URL is missing.' :
+          'Formular-Backend ist nicht konfiguriert. Apps-Script-URL fehlt.');
     return false;
   }
 
@@ -4510,20 +4509,30 @@ async function submitStudioForm(event) {
   }
 
   try {
-    const res = await fetch('/', {
+    const res = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: encodeFormData(form)
+      body: encodeFormData(form),
+      redirect: 'follow'
     });
-    if (res.ok) {
+    let success = res.ok;
+    try {
+      const data = await res.json();
+      success = success && (data.success === true || data.success === 'true');
+    } catch (_) { /* response wasn't JSON — rely on res.ok */ }
+
+    if (success) {
       form.style.display = 'none';
       document.getElementById('studio-form-success').style.display = 'block';
       return false;
     }
     throw new Error('HTTP ' + res.status);
   } catch (err) {
-    console.warn('Fetch failed, falling back to native form POST:', err.message);
-    form.submit();
+    console.warn('Apps Script POST failed:', err.message);
+    alert(currentLang === 'ro' ? 'A apărut o eroare la trimitere. Te rugăm încearcă din nou sau scrie-ne la ' + STUDIO_FORM_EMAIL :
+          currentLang === 'en' ? 'An error occurred while submitting. Please try again or write to ' + STUDIO_FORM_EMAIL :
+          'Beim Senden ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut oder schreiben Sie an ' + STUDIO_FORM_EMAIL);
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalText; }
     return false;
   }
 }
