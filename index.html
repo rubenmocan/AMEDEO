@@ -4484,9 +4484,15 @@ function updateCinematic(stage) {
   const smallH = smallW * 9 / 16;
   const finalW = Math.min(vw * 0.62, 880);
   const finalH = finalW * 9 / 16;
-  // Fullscreen: cover entire viewport
-  const fullW = vw;
-  const fullH = vh;
+  // Maximum 16:9 size that fits in the viewport without stretching.
+  // On portrait/tall screens, width hits viewport edges first.
+  // On landscape/wide screens, height hits viewport edges first.
+  // Subtract a small padding so it doesn't visually crush the screen edges.
+  const PADDING = 0; // change to e.g. 16 if you want air around the max-size frame
+  const availW = vw - PADDING * 2;
+  const availH = vh - PADDING * 2;
+  const fullW = Math.min(availW, availH * 16 / 9);
+  const fullH = fullW * 9 / 16;
 
   let vidOp = 0, vidW = smallW, vidH = smallH, vidR = 16, vidY = 0;
 
