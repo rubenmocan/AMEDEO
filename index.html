@@ -2217,6 +2217,38 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
   will-change: width, height, opacity, transform;
 }
 
+/* YouTube thumbnail layer — sits at the bottom of cine-video when a real video ID is set */
+.cine-video-thumb {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  z-index: 0;
+}
+.cine-video-thumb.loaded { opacity: 1; }
+
+/* When a thumbnail is present, hide the placeholder dove and dim the glow */
+.cine-video.has-thumbnail .cine-video-dove { display: none; }
+.cine-video.has-thumbnail .cine-video-glow {
+  background: radial-gradient(ellipse 60% 70% at 50% 50%, rgba(0,0,0,0.25) 0%, transparent 65%);
+  opacity: 0.7;
+  animation: none;
+}
+/* Vignette overlay over the thumbnail so the play button stands out */
+.cine-video.has-thumbnail::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%),
+    linear-gradient(180deg, rgba(0,0,0,0.1) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.35) 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
 /* Animated content inside the video placeholder */
 .cine-video-inner {
   position: absolute;
@@ -4784,6 +4816,10 @@ function extractYouTubeId(input) {
   return '';
 }
 
+// Tracks the scroll-position when modal opened so we can detect intentional scroll
+let modalOpenScrollY = 0;
+let modalScrollListenerActive = false;
+
 function openYouTube(btn) {
   // Accept either a string (video id/url) or an element with data-youtube attribute
   const raw = typeof btn === 'string' ? btn : (btn && btn.getAttribute('data-youtube')) || '';
@@ -4809,7 +4845,26 @@ function openYouTube(btn) {
   iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden'; // prevent background scroll
+
+  // Don't lock body scroll — we WANT scrolling to close the modal.
+  // Attach a scroll listener that closes the modal as soon as user scrolls.
+  // Capture current scroll-Y so trivial sub-pixel adjustments don't count.
+  modalOpenScrollY = window.scrollY || window.pageYOffset || 0;
+  // Use a small delay so the click/touch that opened the modal doesn't immediately close it
+  setTimeout(() => {
+    if (!modal.classList.contains('open')) return;
+    modalScrollListenerActive = true;
+    window.addEventListener('scroll', closeYouTubeOnScroll, { passive: true });
+    window.addEventListener('wheel',  closeYouTubeOnScroll, { passive: true });
+    window.addEventListener('touchmove', closeYouTubeOnScroll, { passive: true });
+  }, 250);
+}
+
+function closeYouTubeOnScroll() {
+  // Close if user scrolled at least a tiny amount (avoids closing on imperceptible browser shifts)
+  const y = window.scrollY || window.pageYOffset || 0;
+  if (Math.abs(y - modalOpenScrollY) < 6) return;
+  closeYouTube();
 }
 
 function closeYouTube() {
@@ -4819,7 +4874,49 @@ function closeYouTube() {
   modal.classList.remove('open');
   modal.setAttribute('aria-hidden', 'true');
   if (iframe) iframe.src = ''; // stop video playback
-  document.body.style.overflow = '';
+
+  // Detach scroll listeners
+  if (modalScrollListenerActive) {
+    window.removeEventListener('scroll', closeYouTubeOnScroll);
+    window.removeEventListener('wheel',  closeYouTubeOnScroll);
+    window.removeEventListener('touchmove', closeYouTubeOnScroll);
+    modalScrollListenerActive = false;
+  }
+}
+
+// Preload YouTube thumbnails for cine-video frames that have a real video ID.
+// Tries maxresdefault (1280×720); if not available, falls back to hqdefault (480×360).
+function setupYouTubeThumbnails() {
+  document.querySelectorAll('.cine-video-play[data-youtube]').forEach(btn => {
+    const id = btn.getAttribute('data-youtube');
+    if (!id || id === 'placeholder') return;
+    const container = btn.closest('.cine-video');
+    if (!container) return;
+
+    // Avoid double-init
+    if (container.querySelector('.cine-video-thumb')) return;
+
+    const thumb = document.createElement('div');
+    thumb.className = 'cine-video-thumb';
+    container.insertBefore(thumb, container.firstChild);
+
+    const tryLoad = (url, onFail) => {
+      const img = new Image();
+      img.onload = () => {
+        // YouTube returns a 120×90 grey placeholder if maxres doesn't exist
+        if (img.naturalWidth <= 120 && onFail) { onFail(); return; }
+        thumb.style.backgroundImage = 'url(' + url + ')';
+        thumb.classList.add('loaded');
+        container.classList.add('has-thumbnail');
+      };
+      img.onerror = () => { if (onFail) onFail(); };
+      img.src = url;
+    };
+
+    tryLoad(`https://img.youtube.com/vi/${id}/maxresdefault.jpg`, () => {
+      tryLoad(`https://img.youtube.com/vi/${id}/hqdefault.jpg`);
+    });
+  });
 }
 
 // ESC key closes the modal
@@ -4904,6 +5001,7 @@ document.addEventListener('DOMContentLoaded', function() {
   setLang('ro');
   setupFormRedirects();
   handleSuccessHash();
+  setupYouTubeThumbnails();
 
   // Hook up cinematic scroll listener
   window.addEventListener('scroll', onScrollCinematic, { passive: true });
