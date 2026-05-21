@@ -2249,6 +2249,71 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
   pointer-events: none;
 }
 
+/* ── PHOTO SLIDESHOW (used inside cine-video when no YouTube video) ── */
+.cine-photo-track {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+.cine-photo-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.cine-photo-slide.active { opacity: 1; }
+
+/* When a slideshow is present, hide the decorative dove + play button */
+.cine-video.has-slideshow .cine-video-dove,
+.cine-video.has-slideshow .cine-video-play,
+.cine-video.has-slideshow .cine-video-glow { display: none; }
+
+/* Soft vignette over the photos so the label stays readable */
+.cine-video.has-slideshow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 50%, transparent 0%, rgba(0,0,0,0.35) 100%),
+    linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.35) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Pagination dots at the bottom of the slideshow */
+.cine-photo-dots {
+  position: absolute;
+  bottom: clamp(14px, 2.5vh, 22px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 3;
+  pointer-events: auto;
+}
+.cine-photo-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(.2,.7,.2,1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.cine-photo-dot:hover { background: rgba(255,255,255,0.7); }
+.cine-photo-dot.active {
+  background: white;
+  width: 28px;
+  border-radius: 5px;
+}
+
 /* Animated content inside the video placeholder */
 .cine-video-inner {
   position: absolute;
@@ -3241,11 +3306,21 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
       </div>
       <div class="cine-video-wrap">
         <div class="cine-video">
+          <!-- Photo slideshow — save up to 5 photos as assets/recreere-1.jpg … recreere-5.jpg.
+               Missing files auto-hide. To add more, copy a line and change the number. -->
+          <div class="cine-photo-track">
+            <img class="cine-photo-slide" src="assets/recreere-1.jpg" alt="" loading="lazy">
+            <img class="cine-photo-slide" src="assets/recreere-2.jpg" alt="" loading="lazy">
+            <img class="cine-photo-slide" src="assets/recreere-3.jpg" alt="" loading="lazy">
+            <img class="cine-photo-slide" src="assets/recreere-4.jpg" alt="" loading="lazy">
+            <img class="cine-photo-slide" src="assets/recreere-5.jpg" alt="" loading="lazy">
+          </div>
+          <div class="cine-photo-dots"></div>
+          <!-- Decorative fallback shown if no photos load yet -->
           <div class="cine-video-glow"></div>
           <div class="cine-video-inner">
             <div class="cine-video-dove">🌿</div>
-            <div class="cine-video-play" data-youtube="placeholder" onclick="openYouTube(this)">▶</div>
-            <div class="cine-video-label" data-i18n="rec.video.label">Video Recreere</div>
+            <div class="cine-video-label" data-i18n="rec.video.label">Galerie Recreere</div>
           </div>
         </div>
       </div>
@@ -3696,11 +3771,21 @@ nav.cine-mode .nav-hamburger span { background: rgba(255,255,255,0.85); }
       </div>
       <div class="cine-video-wrap">
         <div class="cine-video">
+          <!-- Photo slideshow — save up to 5 photos as assets/studio-1.jpg … studio-5.jpg.
+               Missing files auto-hide. To add more, copy a line and change the number. -->
+          <div class="cine-photo-track">
+            <img class="cine-photo-slide" src="assets/studio-1.jpg" alt="" loading="lazy">
+            <img class="cine-photo-slide" src="assets/studio-2.jpg" alt="" loading="lazy">
+            <img class="cine-photo-slide" src="assets/studio-3.jpg" alt="" loading="lazy">
+            <img class="cine-photo-slide" src="assets/studio-4.jpg" alt="" loading="lazy">
+            <img class="cine-photo-slide" src="assets/studio-5.jpg" alt="" loading="lazy">
+          </div>
+          <div class="cine-photo-dots"></div>
+          <!-- Decorative fallback shown if no photos load yet -->
           <div class="cine-video-glow"></div>
           <div class="cine-video-inner">
             <div class="cine-video-dove">🎙️</div>
-            <div class="cine-video-play" data-youtube="placeholder" onclick="openYouTube(this)">▶</div>
-            <div class="cine-video-label" data-i18n="stu.video.label">Video Studio</div>
+            <div class="cine-video-label" data-i18n="stu.video.label">Galerie Studio</div>
           </div>
         </div>
       </div>
@@ -4018,7 +4103,7 @@ const i18n = {
     'ev.video.label':'Video Evanghelizare',
     'ev.events.label':'Activități','ev.events.title':'Evenimente Publice','ev.events.sub':'Cum ducem mai departe vestea bună a Evangheliei.',
     'ev.gallery.label':'Momente','ev.gallery.title':'Galerie foto','ev.gallery.sub':'Fotografii de la evenimentele de evanghelizare.',
-    'rec.video.label':'Video Recreere',
+    'rec.video.label':'Galerie Recreere',
     'rec.events.label':'Activități','rec.events.title':'Momente de comuniune','rec.events.sub':'Activitățile prin care construim relații și ne bucurăm împreună.',
     'rec.gallery.label':'Momente','rec.gallery.title':'Galerie foto','rec.gallery.sub':'Fotografii de la activitățile de recreere.',
     'tab.video.label':'Video Tabără',
@@ -4027,7 +4112,7 @@ const i18n = {
     'mis.video.label':'Video Misiuni',
     'mis.events.label':'Prezență','mis.events.title':'Cum slujim comunitatea','mis.events.sub':'Direcțiile în care ne implicăm pentru a aduce schimbare reală.',
     'mis.gallery.label':'Momente','mis.gallery.title':'Galerie foto','mis.gallery.sub':'Fotografii de la misiuni.',
-    'stu.video.label':'Video Studio',
+    'stu.video.label':'Galerie Studio',
     'stu.events.label':'Servicii','stu.events.title':'Ce facem în studio','stu.events.sub':'Producție audio profesională cu inimă creștină.',
     'stu.gallery.label':'Spațiu','stu.gallery.title':'Galerie foto','stu.gallery.sub':'Fotografii din studio.',
     'bib.video.label':'YouTube — Studii Biblice',
@@ -4125,7 +4210,7 @@ const i18n = {
     'ev.video.label':'Evangelism Video',
     'ev.events.label':'Activities','ev.events.title':'Public Events','ev.events.sub':'How we carry the Gospel\'s good news forward.',
     'ev.gallery.label':'Moments','ev.gallery.title':'Photo Gallery','ev.gallery.sub':'Photos from evangelism events.',
-    'rec.video.label':'Recreation Video',
+    'rec.video.label':'Recreation Gallery',
     'rec.events.label':'Activities','rec.events.title':'Fellowship moments','rec.events.sub':'Activities that build relationships and bring joy together.',
     'rec.gallery.label':'Moments','rec.gallery.title':'Photo Gallery','rec.gallery.sub':'Photos from recreation activities.',
     'tab.video.label':'Camp Video',
@@ -4134,7 +4219,7 @@ const i18n = {
     'mis.video.label':'Missions Video',
     'mis.events.label':'Presence','mis.events.title':'How we serve the community','mis.events.sub':'The directions where we engage to bring real change.',
     'mis.gallery.label':'Moments','mis.gallery.title':'Photo Gallery','mis.gallery.sub':'Photos from missions.',
-    'stu.video.label':'Studio Video',
+    'stu.video.label':'Studio Gallery',
     'stu.events.label':'Services','stu.events.title':'What we do in the studio','stu.events.sub':'Professional audio production with a Christian heart.',
     'stu.gallery.label':'Space','stu.gallery.title':'Photo Gallery','stu.gallery.sub':'Photos from the studio.',
     'bib.video.label':'YouTube — Bible Studies',
@@ -4233,7 +4318,7 @@ const i18n = {
     'ev.video.label':'Evangelisations-Video',
     'ev.events.label':'Aktivitäten','ev.events.title':'Öffentliche Veranstaltungen','ev.events.sub':'Wie wir die Gute Nachricht des Evangeliums weitertragen.',
     'ev.gallery.label':'Momente','ev.gallery.title':'Fotogalerie','ev.gallery.sub':'Fotos von Evangelisationsveranstaltungen.',
-    'rec.video.label':'Erholungs-Video',
+    'rec.video.label':'Erholungs-Galerie',
     'rec.events.label':'Aktivitäten','rec.events.title':'Momente der Gemeinschaft','rec.events.sub':'Aktivitäten, durch die wir Beziehungen aufbauen und gemeinsam Freude erleben.',
     'rec.gallery.label':'Momente','rec.gallery.title':'Fotogalerie','rec.gallery.sub':'Fotos von Erholungsaktivitäten.',
     'tab.video.label':'Freizeit-Video',
@@ -4242,7 +4327,7 @@ const i18n = {
     'mis.video.label':'Missions-Video',
     'mis.events.label':'Präsenz','mis.events.title':'Wie wir der Gemeinschaft dienen','mis.events.sub':'Die Richtungen, in denen wir uns engagieren, um echten Wandel zu bringen.',
     'mis.gallery.label':'Momente','mis.gallery.title':'Fotogalerie','mis.gallery.sub':'Fotos von Missionen.',
-    'stu.video.label':'Studio-Video',
+    'stu.video.label':'Studio-Galerie',
     'stu.events.label':'Dienste','stu.events.title':'Was wir im Studio tun','stu.events.sub':'Professionelle Audioproduktion mit christlichem Herzen.',
     'stu.gallery.label':'Raum','stu.gallery.title':'Fotogalerie','stu.gallery.sub':'Fotos aus dem Studio.',
     'bib.video.label':'YouTube — Bibelstudien',
@@ -4890,6 +4975,79 @@ function closeYouTube() {
   }
 }
 
+// Auto-rotating photo slideshow inside .cine-photo-track containers.
+// Crossfades between slides every 4.5s. Dots indicate position and allow manual jump.
+function setupPhotoSlideshows() {
+  document.querySelectorAll('.cine-photo-track').forEach(track => {
+    const allSlides = Array.from(track.querySelectorAll('.cine-photo-slide'));
+    // Filter out broken images (paths that don't exist will hide via onerror)
+    const slides = allSlides.filter(img => img.naturalWidth > 0 || !img.complete);
+
+    // For images not yet loaded, attach onerror to hide them and re-filter
+    allSlides.forEach((img, idx) => {
+      if (!img.complete) {
+        img.addEventListener('error', () => { img.style.display = 'none'; }, { once: true });
+      } else if (img.naturalWidth === 0) {
+        img.style.display = 'none';
+      }
+    });
+
+    const container = track.parentElement;
+    const dotsContainer = container.querySelector('.cine-photo-dots');
+
+    // Wait a moment for image load state to settle, then init
+    setTimeout(() => {
+      const liveSlides = allSlides.filter(img => img.style.display !== 'none' && img.naturalWidth > 0);
+      if (liveSlides.length === 0) return; // no photos loaded, leave placeholder visible
+      container.classList.add('has-slideshow');
+
+      // Rebuild dots to match actual loaded slides
+      if (dotsContainer) {
+        dotsContainer.innerHTML = '';
+        liveSlides.forEach((_, i) => {
+          const dot = document.createElement('button');
+          dot.className = 'cine-photo-dot' + (i === 0 ? ' active' : '');
+          dot.type = 'button';
+          dot.setAttribute('aria-label', 'Slide ' + (i + 1));
+          dot.addEventListener('click', () => goToSlide(i));
+          dotsContainer.appendChild(dot);
+        });
+      }
+
+      // Activate first slide
+      liveSlides[0].classList.add('active');
+      let current = 0;
+      let intervalId = null;
+
+      function goToSlide(target) {
+        if (target === current) return;
+        liveSlides[current].classList.remove('active');
+        current = target;
+        liveSlides[current].classList.add('active');
+        if (dotsContainer) {
+          dotsContainer.querySelectorAll('.cine-photo-dot').forEach((d, i) =>
+            d.classList.toggle('active', i === current));
+        }
+      }
+
+      function next() { goToSlide((current + 1) % liveSlides.length); }
+
+      // Only auto-rotate if more than one photo
+      if (liveSlides.length > 1) {
+        intervalId = setInterval(next, 4500);
+      }
+
+      // Pause on hover for desktop users
+      container.addEventListener('mouseenter', () => {
+        if (intervalId) { clearInterval(intervalId); intervalId = null; }
+      });
+      container.addEventListener('mouseleave', () => {
+        if (!intervalId && liveSlides.length > 1) intervalId = setInterval(next, 4500);
+      });
+    }, 350);
+  });
+}
+
 // Preload YouTube thumbnails for cine-video frames that have a real video ID.
 // Tries maxresdefault (1280×720); if not available, falls back to hqdefault (480×360).
 function setupYouTubeThumbnails() {
@@ -5008,6 +5166,7 @@ document.addEventListener('DOMContentLoaded', function() {
   setupFormRedirects();
   handleSuccessHash();
   setupYouTubeThumbnails();
+  setupPhotoSlideshows();
 
   // Hook up cinematic scroll listener
   window.addEventListener('scroll', onScrollCinematic, { passive: true });
