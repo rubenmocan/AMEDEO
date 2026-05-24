@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Evanghelizare — Amedeo</title>
+<meta name="description" content="Evenimente și activități evanghelistice prin care ducem mesajul Evangheliei mai departe, cu dragoste și autenticitate.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Amedeo">
+<meta name="theme-color" content="#f8f6f1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<!-- ── NAVIGATION ── -->
+<nav id="main-nav">
+  <div class="nav-logo" onclick="showPage('home')" aria-label="Amedeo — Acasă">
+    <svg class="amedeo-logo" viewBox="0 0 220 56" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+      <path class="logo-cross" d="M16 5 L21 5 L21 18 L33 18 L33 23 L21 23 L21 50 L16 50 L16 23 L4 23 L4 18 L16 18 Z"/>
+      <text class="logo-name" x="42" y="32" font-family="'Bebas Neue', 'Impact', sans-serif" font-size="28" letter-spacing="3">AMEDEO</text>
+      <g class="logo-lines">
+        <rect x="42" y="36" width="142" height="1.5"/>
+        <rect x="42" y="39.5" width="142" height="2.2"/>
+        <rect x="42" y="43.7" width="142" height="1.5"/>
+      </g>
+      <text class="logo-tagline" x="42" y="54" font-family="'Jost', sans-serif" font-size="6.5" letter-spacing="3.5" font-weight="300">LOVE OF GOD</text>
+    </svg>
+  </div>
+  <ul class="nav-links" id="nav-links">
+    <li><a onclick="showPage('home')" data-i18n="nav.home">Acasă</a></li>
+    <li><a onclick="showPage('evanghelizare')" data-i18n="nav.ev">Evanghelizare</a></li>
+    <li><a onclick="showPage('tabere')" data-i18n="nav.tab">Tabere</a></li>
+    <li><a onclick="showPage('biblic')" data-i18n="nav.bib">Studiu Biblic</a></li>
+    <li><a onclick="showPage('misiuni')" data-i18n="nav.mis">Misiuni</a></li>
+    <li><a onclick="showPage('studio')" data-i18n="nav.stu">Studio</a></li>
+    <li><a onclick="showPage('recreere')" data-i18n="nav.rec">Recreere</a></li>
+    <li><a onclick="showPage('filiale')" data-i18n="nav.fil">Filiale</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="lang-switcher">
+      <button class="lang-btn active" onclick="setLang('ro')">RO</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('de')">DE</button>
+    </div>
+    <a class="nav-cta" onclick="showPage('alatura')" data-i18n="nav.join">Alătură-te</a>
+    <button class="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<!-- ── MOBILE NAV ── -->
+<div class="mobile-nav" id="mobile-nav">
+  <button class="mobile-nav-close" onclick="toggleMobileNav()">✕</button>
+  <svg class="amedeo-logo mobile-nav-logo" viewBox="0 0 240 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+    <path class="logo-cross" d="M115 8 L125 8 L125 30 L145 30 L145 40 L125 40 L125 88 L115 88 L115 40 L95 40 L95 30 L115 30 Z"/>
+    <text class="logo-name" x="120" y="148" text-anchor="middle" font-family="'Bebas Neue', 'Impact', sans-serif" font-size="58" letter-spacing="4">AMEDEO</text>
+    <g class="logo-lines">
+      <rect x="40" y="160" width="160" height="2.5" rx="1"/>
+      <rect x="40" y="167" width="160" height="3.5" rx="1"/>
+      <rect x="40" y="175" width="160" height="2.5" rx="1"/>
+    </g>
+    <text class="logo-tagline" x="120" y="204" text-anchor="middle" font-family="'Jost', sans-serif" font-size="13" letter-spacing="8" font-weight="300">LOVE OF GOD</text>
+  </svg>
+  <a onclick="showPage('home');toggleMobileNav()" data-i18n="nav.home">Acasă</a>
+  <a onclick="showPage('evanghelizare');toggleMobileNav()" data-i18n="nav.ev">Evanghelizare</a>
+  <a onclick="showPage('tabere');toggleMobileNav()" data-i18n="nav.tab">Tabere</a>
+  <a onclick="showPage('biblic');toggleMobileNav()" data-i18n="nav.bib">Studiu Biblic</a>
+  <a onclick="showPage('misiuni');toggleMobileNav()" data-i18n="nav.mis">Misiuni</a>
+  <a onclick="showPage('studio');toggleMobileNav()" data-i18n="nav.stu">Studio</a>
+  <a onclick="showPage('recreere');toggleMobileNav()" data-i18n="nav.rec">Recreere</a>
+  <a onclick="showPage('filiale');toggleMobileNav()" data-i18n="nav.fil">Filiale</a>
+  <a onclick="showPage('alatura');toggleMobileNav()" data-i18n="nav.join">Alătură-te</a>
+</div>
+<!-- ══════════════════════════════════════════════════ -->
+<!-- PAGE: EVANGHELIZARE                                -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="page cinematic active" id="page-evanghelizare" data-cine-icon="🕊️">
+  <section class="cine-stage">
+    <div class="cine-canvas">
+      <div class="cine-backdrop"></div>
+      <div class="cine-intro">
+        <div class="cine-icon">🕊️</div>
+        <div class="cine-label" data-i18n="ev.label">Activitate</div>
+        <h1 class="cine-title" data-i18n="ev.title">Evanghelizare</h1>
+        <p class="cine-desc" data-i18n="ev.desc">Evenimente și activități evangelice prin care ducem vestea bună mai departe, cu dragoste și autenticitate.</p>
+        <div class="cine-scroll-hint"><span data-i18n="cine.scroll">Scroll</span></div>
+      </div>
+      <div class="cine-video-wrap">
+        <div class="cine-video">
+          <div class="cine-video-glow"></div>
+          <div class="cine-video-inner">
+            <div class="cine-video-dove">🕊️</div>
+            <div class="cine-video-play" data-youtube="xBT7CHckEzg" onclick="openYouTube(this)">▶</div>
+            <div class="cine-video-label" data-i18n="ev.video.label">Video Evanghelizare</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="cine-content">
+    <div class="content-section">
+      <div class="cine-content-label" data-i18n="ev.events.label">Activități</div>
+      <h2 class="cine-content-title" data-i18n="ev.events.title">Evenimente Publice</h2>
+      <p class="cine-content-sub" data-i18n="ev.events.sub">Cum ducem mai departe vestea bună a Evangheliei.</p>
+      <div class="cards-grid">
+        <div class="card reveal">
+          <div class="card-icon">🎤</div>
+          <div class="card-title" data-i18n="ev.card1.title">Evenimente Publice</div>
+          <p class="card-text" data-i18n="ev.card1.text">Organizăm evenimente evangelice deschise comunității, cu muzică, mărturii și mesajul Evangheliei prezentate cu claritate și căldură.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon">🙏</div>
+          <div class="card-title" data-i18n="ev.card2.title">Rugăciune & Mijlocire</div>
+          <p class="card-text" data-i18n="ev.card2.text">Înainte de fiecare activitate evangelică, ne pregătim prin rugăciune, credând că Duhul Sfânt este cel care lucrează cu adevărat în inimi.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon">🌱</div>
+          <div class="card-title" data-i18n="ev.card3.title">Ucenicie & Implicare</div>
+          <p class="card-text" data-i18n="ev.card3.text">Nu reușim să ne ocupăm de toți cei care interacționează cu noi, dar însoțim cu drag pe cei care doresc să se implice în lucrarea asociației.</p>
+        </div>
+      </div>
+      <div class="cine-content-label reveal" style="margin-top:100px;" data-i18n="ev.gallery.label">Momente</div>
+      <h2 class="cine-content-title reveal" data-i18n="ev.gallery.title">Galerie foto</h2>
+      <p class="cine-content-sub reveal" data-i18n="ev.gallery.sub">Adaugă aici fotografii de la evenimentele de evanghelizare.</p>
+      <div class="photo-gallery">
+        <div class="photo-tile t1 reveal"><img class="photo-tile-img" src="assets/ev-01.jpg" alt="" loading="lazy" onerror="this.style.display='none'"><div style="text-align:center;position:relative;z-index:0"><div class="photo-icon">📷</div><span>EV 01</span></div></div>
+        <div class="photo-tile t2 reveal"><img class="photo-tile-img" src="assets/ev-02.jpg" alt="" loading="lazy" onerror="this.style.display='none'"><div style="text-align:center;position:relative;z-index:0"><div class="photo-icon">📷</div><span>EV 02</span></div></div>
+        <div class="photo-tile t3 reveal"><img class="photo-tile-img" src="assets/ev-03.jpg" alt="" loading="lazy" onerror="this.style.display='none'"><div style="text-align:center;position:relative;z-index:0"><div class="photo-icon">📷</div><span>EV 03</span></div></div>
+        <div class="photo-tile t4 reveal"><img class="photo-tile-img" src="assets/ev-04.jpg" alt="" loading="lazy" onerror="this.style.display='none'"><div style="text-align:center;position:relative;z-index:0"><div class="photo-icon">📷</div><span>EV 04</span></div></div>
+        <div class="photo-tile t5 reveal"><img class="photo-tile-img" src="assets/ev-05.jpg" alt="" loading="lazy" onerror="this.style.display='none'"><div style="text-align:center;position:relative;z-index:0"><div class="photo-icon">📷</div><span>EV 05</span></div></div>
+        <div class="photo-tile t6 reveal"><img class="photo-tile-img" src="assets/ev-06.jpg" alt="" loading="lazy" onerror="this.style.display='none'"><div style="text-align:center;position:relative;z-index:0"><div class="photo-icon">📷</div><span>EV 06</span></div></div>
+        <div class="photo-tile t7 reveal"><img class="photo-tile-img" src="assets/ev-07.jpg" alt="" loading="lazy" onerror="this.style.display='none'"><div style="text-align:center;position:relative;z-index:0"><div class="photo-icon">📷</div><span>EV 07</span></div></div>
+      </div>
+    </div>
+    <div class="verse-banner reveal">
+      <blockquote data-i18n="ev.verse.text">„Duceți-vă în toată lumea și predicați Evanghelia la orice făptură."</blockquote>
+      <div class="teal-divider"></div>
+      <cite data-i18n="ev.verse.cite">Marcu 16:15 · VDC</cite>
+    </div>
+    <div class="footer-teal-line"></div>
+    <footer>
+      <div class="footer-bottom" style="border-top:none; padding-top:0;">
+        <span>© 2025 Asociația Creștină Amedeo</span>
+        <a onclick="showPage('home')" class="btn-back-home"><span class="arrow">←</span>&nbsp;<span data-i18n="back.home">Înapoi acasă</span></a>
+      </div>
+    </footer>
+  </div>
+</div>
+<!-- ── YOUTUBE LIGHTBOX MODAL ── -->
+<div class="youtube-modal" id="youtube-modal" onclick="if(event.target===this) closeYouTube()" aria-hidden="true" role="dialog">
+  <div class="youtube-modal-content">
+    <button class="youtube-modal-close" onclick="closeYouTube()" aria-label="Închide video">✕</button>
+    <iframe id="youtube-iframe" src="" title="Video Amedeo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    <div class="youtube-modal-hint" data-i18n="yt.hint">ESC sau click în afară pentru a închide</div>
+  </div>
+</div>
+<script src="assets/js/translations.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
