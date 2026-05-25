@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Recreere & Relaxare — Amedeo</title>
+<meta name="description" content="Activități de recreere, drumeții, sport și seri de comuniune în comunitatea Amedeo.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Amedeo">
+<meta name="theme-color" content="#f8f6f1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- ── NAVIGATION ── -->
+<nav id="main-nav">
+  <div class="nav-logo" onclick="showPage('home')" aria-label="Amedeo — Acasă">
+    <svg class="amedeo-logo" viewBox="0 0 220 56" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+      <path class="logo-cross" d="M16 5 L21 5 L21 18 L33 18 L33 23 L21 23 L21 50 L16 50 L16 23 L4 23 L4 18 L16 18 Z"/>
+      <text class="logo-name" x="42" y="32"
+        font-family="'Bebas Neue', 'Impact', sans-serif" font-size="28" letter-spacing="3">AMEDEO</text>
+      <g class="logo-lines">
+        <rect x="42" y="36" width="142" height="1.5"/>
+        <rect x="42" y="39.5" width="142" height="2.2"/>
+        <rect x="42" y="43.7" width="142" height="1.5"/>
+      </g>
+      <text class="logo-tagline" x="42" y="54"
+        font-family="'Jost', sans-serif" font-size="6.5" letter-spacing="3.5" font-weight="300">LOVE OF GOD</text>
+    </svg>
+  </div>
+
+  <ul class="nav-links" id="nav-links">
+    <li><a onclick="showPage('home')" data-i18n="nav.home">Acasă</a></li>
+    <li><a onclick="showPage('evanghelizare')" data-i18n="nav.ev">Evanghelizare</a></li>
+    <li><a onclick="showPage('tabere')" data-i18n="nav.tab">Tabere</a></li>
+    <li><a onclick="showPage('biblic')" data-i18n="nav.bib">Studiu Biblic</a></li>
+    <li><a onclick="showPage('misiuni')" data-i18n="nav.mis">Misiuni</a></li>
+    <li><a onclick="showPage('studio')" data-i18n="nav.stu">Studio</a></li>
+    <li><a onclick="showPage('recreere')" data-i18n="nav.rec">Recreere</a></li>
+    <li><a onclick="showPage('filiale')" data-i18n="nav.fil">Filiale</a></li>
+  </ul>
+
+  <div class="nav-right">
+    <div class="lang-switcher">
+      <button class="lang-btn active" onclick="setLang('ro')">RO</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('de')">DE</button>
+    </div>
+    <a class="nav-cta" onclick="showPage('alatura')" data-i18n="nav.join">Alătură-te</a>
+    <button class="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ── MOBILE NAV ── -->
+<div class="mobile-nav" id="mobile-nav">
+  <button class="mobile-nav-close" onclick="toggleMobileNav()">✕</button>
+  <svg class="amedeo-logo mobile-nav-logo" viewBox="0 0 240 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+    <path class="logo-cross" d="M115 8 L125 8 L125 30 L145 30 L145 40 L125 40 L125 88 L115 88 L115 40 L95 40 L95 30 L115 30 Z"/>
+    <text class="logo-name" x="120" y="148" text-anchor="middle"
+      font-family="'Bebas Neue', 'Impact', sans-serif" font-size="58" letter-spacing="4">AMEDEO</text>
+    <g class="logo-lines">
+      <rect x="40" y="160" width="160" height="2.5" rx="1"/>
+      <rect x="40" y="167" width="160" height="3.5" rx="1"/>
+      <rect x="40" y="175" width="160" height="2.5" rx="1"/>
+    </g>
+    <text class="logo-tagline" x="120" y="204" text-anchor="middle"
+      font-family="'Jost', sans-serif" font-size="13" letter-spacing="8" font-weight="300">LOVE OF GOD</text>
+  </svg>
+  <a onclick="showPage('home');toggleMobileNav()" data-i18n="nav.home">Acasă</a>
+  <a onclick="showPage('evanghelizare');toggleMobileNav()" data-i18n="nav.ev">Evanghelizare</a>
+  <a onclick="showPage('tabere');toggleMobileNav()" data-i18n="nav.tab">Tabere</a>
+  <a onclick="showPage('biblic');toggleMobileNav()" data-i18n="nav.bib">Studiu Biblic</a>
+  <a onclick="showPage('misiuni');toggleMobileNav()" data-i18n="nav.mis">Misiuni</a>
+  <a onclick="showPage('studio');toggleMobileNav()" data-i18n="nav.stu">Studio</a>
+  <a onclick="showPage('recreere');toggleMobileNav()" data-i18n="nav.rec">Recreere</a>
+  <a onclick="showPage('filiale');toggleMobileNav()" data-i18n="nav.fil">Filiale</a>
+  <a onclick="showPage('alatura');toggleMobileNav()" data-i18n="nav.join">Alătură-te</a>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- PAGE: RECREERE                                     -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="page cinematic active" id="page-recreere" data-cine-icon="🌿">
+  <section class="cine-stage">
+    <div class="cine-canvas">
+      <div class="cine-backdrop theme-nature"></div>
+      <!-- Tree silhouettes -->
+      <svg class="cine-trees" viewBox="0 0 1200 400" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="treeGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#020a05" stop-opacity="0.95"/>
+            <stop offset="100%" stop-color="#000" stop-opacity="1"/>
+          </linearGradient>
+        </defs>
+        <!-- Mountain silhouette in back -->
+        <path d="M 0 320 L 180 220 L 320 280 L 480 200 L 640 270 L 800 210 L 960 290 L 1100 230 L 1200 270 L 1200 400 L 0 400 Z" fill="#031a10" opacity="0.55"/>
+        <!-- Pine trees front layer -->
+        <path d="M 80 400 L 80 320 L 70 320 L 95 280 L 80 280 L 105 240 L 90 240 L 115 195 L 140 240 L 125 240 L 150 280 L 135 280 L 160 320 L 150 320 L 150 400 Z" fill="url(#treeGrad)"/>
+        <path d="M 220 400 L 220 340 L 210 340 L 230 305 L 218 305 L 240 270 L 228 270 L 248 230 L 268 270 L 256 270 L 278 305 L 266 305 L 286 340 L 276 340 L 276 400 Z" fill="url(#treeGrad)"/>
+        <path d="M 360 400 L 360 330 L 348 330 L 372 290 L 358 290 L 382 250 L 368 250 L 392 205 L 416 250 L 402 250 L 426 290 L 412 290 L 436 330 L 424 330 L 424 400 Z" fill="url(#treeGrad)"/>
+        <path d="M 540 400 L 540 350 L 530 350 L 552 312 L 540 312 L 562 275 L 550 275 L 572 235 L 592 275 L 580 275 L 602 312 L 590 312 L 612 350 L 602 350 L 602 400 Z" fill="url(#treeGrad)"/>
+        <path d="M 720 400 L 720 325 L 710 325 L 732 285 L 720 285 L 742 245 L 730 245 L 752 200 L 776 245 L 764 245 L 786 285 L 774 285 L 796 325 L 786 325 L 786 400 Z" fill="url(#treeGrad)"/>
+        <path d="M 890 400 L 890 345 L 880 345 L 902 308 L 890 308 L 912 270 L 900 270 L 922 228 L 942 270 L 930 270 L 952 308 L 940 308 L 962 345 L 952 345 L 952 400 Z" fill="url(#treeGrad)"/>
+        <path d="M 1060 400 L 1060 330 L 1050 330 L 1072 292 L 1060 292 L 1082 252 L 1070 252 L 1092 210 L 1116 252 L 1104 252 L 1126 292 L 1114 292 L 1136 330 L 1126 330 L 1126 400 Z" fill="url(#treeGrad)"/>
+      </svg>
+      <div class="cine-intro">
+        <div class="cine-icon">🌿</div>
+        <div class="cine-label" data-i18n="rec.label">Activitate</div>
+        <h1 class="cine-title" data-i18n="rec.title">Recreere &amp; Relaxare</h1>
+        <p class="cine-desc" data-i18n="rec.desc">Momente de refacere, bucurie și comuniune autentică în mijlocul naturii și al fraților.</p>
+        <div class="cine-scroll-hint"><span data-i18n="cine.scroll">Scroll</span></div>
+      </div>
+      <div class="cine-video-wrap">
+        <div class="cine-video">
+          <!-- Photo slideshow — save up to 5 photos as assets/recreere-1.jpg … recreere-5.jpg.
+               Missing files auto-hide. To add more, copy a line and change the number. -->
+          <div class="cine-photo-track">
+            <img class="cine-photo-slide" src="assets/recreere-1.jpg" alt="" loading="eager">
+            <img class="cine-photo-slide" src="assets/recreere-2.jpg" alt="" loading="eager">
+            <img class="cine-photo-slide" src="assets/recreere-3.jpg" alt="" loading="eager">
+            <img class="cine-photo-slide" src="assets/recreere-4.jpg" alt="" loading="eager">
+            <img class="cine-photo-slide" src="assets/recreere-5.jpg" alt="" loading="eager">
+          </div>
+          <div class="cine-photo-dots"></div>
+          <!-- Decorative fallback shown if no photos load yet -->
+          <div class="cine-video-glow"></div>
+          <div class="cine-video-inner">
+            <div class="cine-video-dove">🌿</div>
+            <div class="cine-video-label" data-i18n="rec.video.label">Galerie Recreere</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="cine-content">
+    <div class="content-section">
+      <div class="cine-content-label" data-i18n="rec.events.label">Activități</div>
+      <h2 class="cine-content-title" data-i18n="rec.events.title">Momente de comuniune</h2>
+      <p class="cine-content-sub" data-i18n="rec.events.sub">Activitățile prin care construim relații și ne bucurăm împreună.</p>
+
+      <div class="cards-grid">
+        <div class="card reveal">
+          <div class="card-icon">🏔️</div>
+          <div class="card-title" data-i18n="rec.card1.title">Drumeții &amp; Natură</div>
+          <p class="card-text" data-i18n="rec.card1.text">Activități în aer liber care aduc comunitatea împreună și oferă ocazia de a admira creația lui Dumnezeu.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon">🎵</div>
+          <div class="card-title" data-i18n="rec.card2.title">Seri de Comuniune</div>
+          <p class="card-text" data-i18n="rec.card2.text">Întâlniri informale cu muzică, mâncare și conversații care adâncesc prietenia și legăturile din comunitate.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon">🔥</div>
+          <div class="card-title" data-i18n="rec.card4.title">Foc de Tabără</div>
+          <p class="card-text" data-i18n="rec.card4.text">Seri în jurul focului cu cântece de laudă, mărturii și liniștea naturii — momente neuitate care unesc inimile.</p>
+        </div>
+        <div class="card reveal">
+          <div class="card-icon">⚽</div>
+          <div class="card-title" data-i18n="rec.card3.title">Sport &amp; Activități</div>
+          <p class="card-text" data-i18n="rec.card3.text">Activități sportive și recreative care promovează sănătatea, echipa și spiritul de comunitate.</p>
+        </div>
+      </div>
+
+      <div class="cine-content-label reveal" style="margin-top:100px;" data-i18n="rec.gallery.label">Momente</div>
+      <h2 class="cine-content-title reveal" data-i18n="rec.gallery.title">Galerie foto</h2>
+      <p class="cine-content-sub reveal" data-i18n="rec.gallery.sub">Adaugă aici fotografii de la activitățile de recreere.</p>
+
+      <div class="photo-gallery">
+        <div class="photo-tile reveal"><img class="photo-tile-img" src="assets/rec-01.jpg" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="photo-tile reveal"><img class="photo-tile-img" src="assets/rec-02.jpg" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="photo-tile reveal"><img class="photo-tile-img" src="assets/rec-03.jpg" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="photo-tile reveal"><img class="photo-tile-img" src="assets/rec-04.jpg" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="photo-tile reveal"><img class="photo-tile-img" src="assets/rec-05.jpg" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="photo-tile reveal"><img class="photo-tile-img" src="assets/rec-06.jpg" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="photo-tile reveal"><img class="photo-tile-img" src="assets/rec-07.jpg" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="photo-tile reveal"><img class="photo-tile-img" src="assets/rec-08.jpg" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="photo-tile reveal"><img class="photo-tile-img" src="assets/rec-09.jpg" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="photo-tile reveal"><img class="photo-tile-img" src="assets/rec-10.jpg" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="photo-tile reveal"><img class="photo-tile-img" src="assets/rec-11.jpg" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="photo-tile reveal"><img class="photo-tile-img" src="assets/rec-12.jpg" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="photo-tile reveal"><img class="photo-tile-img" src="assets/rec-13.jpg" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="photo-tile reveal"><img class="photo-tile-img" src="assets/rec-14.jpg" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+        <div class="photo-tile reveal"><img class="photo-tile-img" src="assets/rec-15.jpg" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+      
+      </div>
+    </div>
+    <div class="footer-teal-line"></div>
+    <footer><div class="footer-bottom" style="border-top:none;padding-top:0;"><span>© 2025 Asociația Creștină Amedeo</span><a onclick="showPage('home')" class="btn-back-home"><span class="arrow">←</span>&nbsp;<span data-i18n="back.home">Înapoi acasă</span></a></div></footer>
+  </div>
+</div>
+
+<!-- ── YOUTUBE LIGHTBOX MODAL ── -->
+<div class="youtube-modal" id="youtube-modal" onclick="if(event.target===this) closeYouTube()" aria-hidden="true" role="dialog">
+  <div class="youtube-modal-content">
+    <button class="youtube-modal-close" onclick="closeYouTube()" aria-label="Închide video">✕</button>
+    <iframe id="youtube-iframe" src="" title="Video Amedeo"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen></iframe>
+    <div class="youtube-modal-hint" data-i18n="yt.hint">ESC sau click în afară pentru a închide</div>
+  </div>
+</div>
+
+<script src="assets/js/translations.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
