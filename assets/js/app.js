@@ -321,9 +321,17 @@ function updateDomainsAudio() {
   if (!video) return;
   const v = getDomainsVisibility();
   const targetVol = videoAudioEnabled ? visibilityToVolume(v) : 0;
-  const curr = video.volume || 0;
-  const newVol = curr + (targetVol - curr) * 0.25;
-  video.volume = Math.max(0, Math.min(1, newVol));
+
+  if (audioGain) {
+    // Web Audio path: short scroll-driven fade (~300ms)
+    fadeAudioGainTo(targetVol, 300);
+  } else {
+    // Fallback for browsers without AudioContext: set video.volume directly
+    const curr = video.volume || 0;
+    const newVol = curr + (targetVol - curr) * 0.25;
+    video.volume = Math.max(0, Math.min(1, newVol));
+  }
+
   if (videoAudioEnabled && v < 0.05) {
     if (!video.muted) video.muted = true;
   } else if (videoAudioEnabled && v >= 0.05) {
@@ -367,18 +375,33 @@ function toggleVideoAudio() {
   videoAudioEnabled = !videoAudioEnabled;
   btn.classList.toggle('muted', !videoAudioEnabled);
   btn.classList.remove('pulse');
+
+  // Initialize Web Audio on first interaction (required user gesture on iOS).
+  // If init fails (older browser), we fall back to video.volume in updateDomainsAudio.
+  if (!audioCtx) initAudioGraph();
+
   if (videoAudioEnabled) {
-    // Start silent so the rAF loop can fade it in smoothly
-    video.volume = 0;
+    // Start the video element. With Web Audio, volume is controlled by gain.
+    if (!audioGain) video.volume = 0; // fallback path
     video.muted = false;
     const playPromise = video.play();
     if (playPromise && playPromise.catch) playPromise.catch(() => {});
     btn.setAttribute('aria-label', 'Dezactivează sunetul video');
+    // Smooth fade to target volume over 1.5s
+    const v = getDomainsVisibility();
+    if (audioGain) fadeAudioGainTo(visibilityToVolume(v), 1500);
+    else startAudioFadeLoop();
   } else {
-    video.muted = true;
+    // Fade out, then mute
+    if (audioGain) {
+      fadeAudioGainTo(0, 800);
+      setTimeout(() => { if (!videoAudioEnabled) video.muted = true; }, 850);
+    } else {
+      video.muted = true;
+      startAudioFadeLoop();
+    }
     btn.setAttribute('aria-label', 'Activează sunetul video');
   }
-  startAudioFadeLoop();
 }
 
 let cineTicking = false;
@@ -440,10 +463,15 @@ function tryAutoEnableVideoAudio() {
   const video = document.getElementById('domains-video');
   const btn = document.getElementById('video-audio-toggle');
   if (!video) return;
+
+  // Init Web Audio NOW — this is a real user gesture (scroll/click/touch),
+  // which iOS requires for AudioContext to start.
+  initAudioGraph();
+
   videoAudioEnabled = true;
-  // Start silent so the rAF fade loop can ramp the volume in smoothly,
-  // instead of audio kicking in at full default volume (=1.0).
-  video.volume = 0;
+  // Start silent: with Web Audio, gain=0 means silent; with fallback,
+  // we set video.volume=0 so the rAF loop can ramp it.
+  if (!audioGain) video.volume = 0;
   video.muted = false;
   const playPromise = video.play();
   if (playPromise && playPromise.catch) {
@@ -457,7 +485,11 @@ function tryAutoEnableVideoAudio() {
     btn.classList.toggle('muted', !videoAudioEnabled);
     btn.classList.remove('pulse');
   }
-  startAudioFadeLoop();
+
+  // Smooth fade-in over 1.5s
+  const v = getDomainsVisibility();
+  if (audioGain) fadeAudioGainTo(visibilityToVolume(v), 1500);
+  else startAudioFadeLoop();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -825,6 +857,108 @@ function copyIBAN(btn) {
 }
 
 // ═══════════════════════════════════════════════════════════
+//   FAST-TAP for iOS — bypasses Safari's "hover-then-tap" behaviour
+//   On iOS, elements with :hover styles require TWO taps even with
+//   touch-action: manipulation. This handler captures touchend BEFORE
+//   iOS's synthetic click delay and fires the onclick immediately.
+// ═══════════════════════════════════════════════════════════
+function setupFastTaps() {
+  if (!('ontouchstart' in window)) return;
+
+  let tx = 0, ty = 0, ttime = 0, tapTarget = null;
+
+  document.addEventListener('touchstart', function(e) {
+    if (e.touches.length !== 1) { tapTarget = null; return; }
+    tx = e.touches[0].clientX;
+    ty = e.touches[0].clientY;
+    ttime = Date.now();
+    // Match elements that have an onclick handler — covers nav links,
+    // buttons, photo tiles, IBAN copy etc. without naming each selector.
+    tapTarget = e.target.closest('a[onclick], button[onclick], [onclick]');
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function(e) {
+    if (!tapTarget) return;
+    const t = e.touches[0];
+    // Cancel if user moved more than 10px — they're scrolling, not tapping
+    if (Math.abs(t.clientX - tx) > 10 || Math.abs(t.clientY - ty) > 10) {
+      tapTarget = null;
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    if (!tapTarget) return;
+    const dt = Date.now() - ttime;
+    const target = tapTarget;
+    tapTarget = null;
+    if (dt > 500) return; // long-press, not a tap
+
+    // Skip if the tap is on a native form control — let browser handle them
+    const tag = target.tagName.toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+    // Skip if it's a form submit button — submitForm logic needs the real submit event
+    if (target.type === 'submit') return;
+
+    // Skip lightbox arrows (they have their own touch handlers)
+    if (target.closest('.photo-lightbox')) return;
+
+    e.preventDefault(); // Stop the natural synthetic click from firing again
+
+    // Fire the onclick directly
+    const onclickAttr = target.getAttribute('onclick');
+    if (onclickAttr) {
+      try { (new Function('event', onclickAttr)).call(target, e); }
+      catch (err) { console.warn('onclick error:', err); }
+    } else if (typeof target.click === 'function') {
+      target.click();
+    }
+  }, { passive: false });
+}
+
+// ═══════════════════════════════════════════════════════════
+//   WEB AUDIO API for fade on iOS — video.volume is read-only on iOS,
+//   so we route the video through AudioContext + GainNode. Gain CAN be
+//   ramped on iOS, giving us true fade-in/fade-out everywhere.
+// ═══════════════════════════════════════════════════════════
+let audioCtx = null;
+let audioGain = null;
+let audioSourceNode = null;
+
+function initAudioGraph() {
+  if (audioCtx || !('AudioContext' in window || 'webkitAudioContext' in window)) return false;
+  const video = document.getElementById('domains-video');
+  if (!video) return false;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AC();
+    audioSourceNode = audioCtx.createMediaElementSource(video);
+    audioGain = audioCtx.createGain();
+    audioGain.gain.value = 0; // start silent
+    audioSourceNode.connect(audioGain);
+    audioGain.connect(audioCtx.destination);
+    return true;
+  } catch (e) {
+    console.warn('Web Audio init failed (continuing without fade):', e.message);
+    audioCtx = null;
+    return false;
+  }
+}
+
+function fadeAudioGainTo(targetVol, durationMs) {
+  if (!audioCtx || !audioGain) return;
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume().catch(() => {});
+  }
+  const now = audioCtx.currentTime;
+  const d = Math.max(0.05, (durationMs || 600) / 1000);
+  try {
+    audioGain.gain.cancelScheduledValues(now);
+    audioGain.gain.setValueAtTime(audioGain.gain.value, now);
+    audioGain.gain.linearRampToValueAtTime(Math.max(0, Math.min(1, targetVol)), now + d);
+  } catch (e) { /* ignore */ }
+}
+
+// ═══════════════════════════════════════════════════════════
 //   FORM TIMESTAMP — bot timing detection
 //   Setăm timestamp-ul la încărcarea paginii. Apps Script verifică
 //   diff-ul față de Date.now() la submit. Sub 2s = bot (silent drop).
@@ -909,6 +1043,7 @@ document.addEventListener('DOMContentLoaded', function() {
   setupPhotoGalleries();
   unobfuscateEmails();
   setFormTimestamps();
+  setupFastTaps();
 
   window.addEventListener('scroll', onScrollCinematic, { passive: true });
   window.addEventListener('resize', onScrollCinematic, { passive: true });
