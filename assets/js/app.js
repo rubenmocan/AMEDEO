@@ -331,6 +331,34 @@ function updateDomainsAudio() {
   }
 }
 
+// ─── Continuous audio fade loop ────────────────────────
+// updateDomainsAudio() only runs on scroll/resize events. On mobile, when
+// the user first unmutes audio without scrolling, the volume jumps because
+// only one frame of the smooth-approach calc runs. This rAF loop keeps
+// ramping the volume toward target until it converges, producing a gentle
+// fade-in/out regardless of scroll activity.
+let audioFadeRafId = null;
+function startAudioFadeLoop() {
+  if (audioFadeRafId) cancelAnimationFrame(audioFadeRafId);
+  function step() {
+    const video = document.getElementById('domains-video');
+    if (!video) { audioFadeRafId = null; return; }
+    const v = getDomainsVisibility();
+    const targetVol = videoAudioEnabled ? visibilityToVolume(v) : 0;
+    const curr = video.volume || 0;
+    const diff = targetVol - curr;
+    // ~6% of remaining distance per frame → smooth fade over ~1s
+    video.volume = Math.max(0, Math.min(1, curr + diff * 0.06));
+    if (Math.abs(diff) > 0.005) {
+      audioFadeRafId = requestAnimationFrame(step);
+    } else {
+      video.volume = Math.max(0, Math.min(1, targetVol));
+      audioFadeRafId = null;
+    }
+  }
+  audioFadeRafId = requestAnimationFrame(step);
+}
+
 function toggleVideoAudio() {
   const video = document.getElementById('domains-video');
   const btn = document.getElementById('video-audio-toggle');
@@ -340,21 +368,27 @@ function toggleVideoAudio() {
   btn.classList.toggle('muted', !videoAudioEnabled);
   btn.classList.remove('pulse');
   if (videoAudioEnabled) {
+    // Start silent so the rAF loop can fade it in smoothly
+    video.volume = 0;
     video.muted = false;
     const playPromise = video.play();
     if (playPromise && playPromise.catch) playPromise.catch(() => {});
     btn.setAttribute('aria-label', 'Dezactivează sunetul video');
   } else {
     video.muted = true;
-    video.volume = 0;
     btn.setAttribute('aria-label', 'Activează sunetul video');
   }
-  updateDomainsAudio();
+  startAudioFadeLoop();
 }
 
 let cineTicking = false;
 function onScrollCinematic() {
   if (cineTicking) return;
+  // ─── Pinch-zoom guard ─────────────────────────────────
+  // On iOS Safari, pinch-zoom fires scroll events that fool our parallax
+  // math into setting hero-bg opacity near 0 — the photo "vanishes" until
+  // the user zooms out. Skip the animation while the user is zoomed in.
+  if (window.visualViewport && window.visualViewport.scale > 1.01) return;
   cineTicking = true;
   requestAnimationFrame(() => {
     // Multi-page: each page is its own document. Just pick the .cinematic stage if present.
@@ -407,6 +441,9 @@ function tryAutoEnableVideoAudio() {
   const btn = document.getElementById('video-audio-toggle');
   if (!video) return;
   videoAudioEnabled = true;
+  // Start silent so the rAF fade loop can ramp the volume in smoothly,
+  // instead of audio kicking in at full default volume (=1.0).
+  video.volume = 0;
   video.muted = false;
   const playPromise = video.play();
   if (playPromise && playPromise.catch) {
@@ -420,7 +457,7 @@ function tryAutoEnableVideoAudio() {
     btn.classList.toggle('muted', !videoAudioEnabled);
     btn.classList.remove('pulse');
   }
-  updateDomainsAudio();
+  startAudioFadeLoop();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -787,6 +824,42 @@ function copyIBAN(btn) {
   }
 }
 
+// ═══════════════════════════════════════════════════════════
+//   FORM TIMESTAMP — bot timing detection
+//   Setăm timestamp-ul la încărcarea paginii. Apps Script verifică
+//   diff-ul față de Date.now() la submit. Sub 2s = bot (silent drop).
+// ═══════════════════════════════════════════════════════════
+function setFormTimestamps() {
+  const ts = Date.now().toString();
+  document.querySelectorAll('input.form-timestamp').forEach((el) => {
+    el.value = ts;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//   EMAIL OBFUSCATION — protect against scraper spam bots
+//   Static HTML shows "…@…" placeholder; JS rebuilds the real
+//   address from data-user + data-domain on page load.
+//   Simple regex scrapers that look for `mailto:` or `@gmail.com`
+//   get nothing. Real users see the email + clickable mailto link.
+//
+//   To add a new obfuscated email anywhere in HTML:
+//     <a href="#" data-user="username" data-domain="domain.com">…@…</a>
+// ═══════════════════════════════════════════════════════════
+function unobfuscateEmails() {
+  document.querySelectorAll('a[data-user][data-domain]').forEach((a) => {
+    const user = a.getAttribute('data-user');
+    const domain = a.getAttribute('data-domain');
+    if (!user || !domain) return;
+    const email = user + '@' + domain;
+    a.setAttribute('href', 'mailto:' + email);
+    // Only replace text if it's still the placeholder (don't overwrite custom labels)
+    if (a.textContent.trim() === '…@…' || a.textContent.trim() === '') {
+      a.textContent = email;
+    }
+  });
+}
+
 // Form success hash handler (no longer redirects between pages in multi-page mode)
 function handleSuccessHash() {
   const h = window.location.hash;
@@ -834,6 +907,8 @@ document.addEventListener('DOMContentLoaded', function() {
   setupYouTubeThumbnails();
   setupPhotoSlideshows();
   setupPhotoGalleries();
+  unobfuscateEmails();
+  setFormTimestamps();
 
   window.addEventListener('scroll', onScrollCinematic, { passive: true });
   window.addEventListener('resize', onScrollCinematic, { passive: true });
