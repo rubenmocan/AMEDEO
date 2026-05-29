@@ -321,17 +321,9 @@ function updateDomainsAudio() {
   if (!video) return;
   const v = getDomainsVisibility();
   const targetVol = videoAudioEnabled ? visibilityToVolume(v) : 0;
-
-  if (audioGain) {
-    // Web Audio path: short scroll-driven fade (~300ms)
-    fadeAudioGainTo(targetVol, 300);
-  } else {
-    // Fallback for browsers without AudioContext: set video.volume directly
-    const curr = video.volume || 0;
-    const newVol = curr + (targetVol - curr) * 0.25;
-    video.volume = Math.max(0, Math.min(1, newVol));
-  }
-
+  const curr = video.volume || 0;
+  const newVol = curr + (targetVol - curr) * 0.25;
+  video.volume = Math.max(0, Math.min(1, newVol));
   if (videoAudioEnabled && v < 0.05) {
     if (!video.muted) video.muted = true;
   } else if (videoAudioEnabled && v >= 0.05) {
@@ -376,32 +368,17 @@ function toggleVideoAudio() {
   btn.classList.toggle('muted', !videoAudioEnabled);
   btn.classList.remove('pulse');
 
-  // Initialize Web Audio on first interaction (required user gesture on iOS).
-  // If init fails (older browser), we fall back to video.volume in updateDomainsAudio.
-  if (!audioCtx) initAudioGraph();
-
   if (videoAudioEnabled) {
-    // Start the video element. With Web Audio, volume is controlled by gain.
-    if (!audioGain) video.volume = 0; // fallback path
+    video.volume = 0; // start silent, rAF loop fades in
     video.muted = false;
     const playPromise = video.play();
-    if (playPromise && playPromise.catch) playPromise.catch(() => {});
+    if (playPromise && playPromise.catch) playPromise.catch(function() {});
     btn.setAttribute('aria-label', 'Dezactivează sunetul video');
-    // Smooth fade to target volume over 1.5s
-    const v = getDomainsVisibility();
-    if (audioGain) fadeAudioGainTo(visibilityToVolume(v), 1500);
-    else startAudioFadeLoop();
   } else {
-    // Fade out, then mute
-    if (audioGain) {
-      fadeAudioGainTo(0, 800);
-      setTimeout(() => { if (!videoAudioEnabled) video.muted = true; }, 850);
-    } else {
-      video.muted = true;
-      startAudioFadeLoop();
-    }
+    video.muted = true;
     btn.setAttribute('aria-label', 'Activează sunetul video');
   }
+  startAudioFadeLoop();
 }
 
 let cineTicking = false;
@@ -464,18 +441,19 @@ function tryAutoEnableVideoAudio() {
   const btn = document.getElementById('video-audio-toggle');
   if (!video) return;
 
-  // Init Web Audio NOW — this is a real user gesture (scroll/click/touch),
-  // which iOS requires for AudioContext to start.
-  initAudioGraph();
-
+  // ─── Auto-enable uses video.volume (NOT Web Audio) ───
+  // createMediaElementSource permanently reroutes audio through the AudioContext.
+  // If we init Web Audio here and gain starts at 0, the audio goes silent
+  // — on iOS, desktop, everywhere. Web Audio is only initialized when the
+  // user clicks the audio toggle button, where they expect fade behaviour.
   videoAudioEnabled = true;
-  // Start silent: with Web Audio, gain=0 means silent; with fallback,
-  // we set video.volume=0 so the rAF loop can ramp it.
-  if (!audioGain) video.volume = 0;
+  video.volume = 0; // Start silent so rAF loop can fade in (Android/Desktop)
   video.muted = false;
   const playPromise = video.play();
   if (playPromise && playPromise.catch) {
-    playPromise.catch(() => {
+    playPromise.catch(function(err) {
+      // Autoplay-with-sound blocked; fall back to muted, user can tap toggle.
+      console.warn('Auto-enable failed:', err && err.message);
       video.muted = true;
       videoAudioEnabled = false;
       if (btn) btn.classList.add('muted');
@@ -485,11 +463,10 @@ function tryAutoEnableVideoAudio() {
     btn.classList.toggle('muted', !videoAudioEnabled);
     btn.classList.remove('pulse');
   }
-
-  // Smooth fade-in over 1.5s
-  const v = getDomainsVisibility();
-  if (audioGain) fadeAudioGainTo(visibilityToVolume(v), 1500);
-  else startAudioFadeLoop();
+  // rAF loop slides video.volume to target (works on Android/Desktop).
+  // On iOS, video.volume changes are silently ignored; audio plays at
+  // hardware volume — no fade, but immediate audibility.
+  startAudioFadeLoop();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -867,20 +844,22 @@ function setupFastTaps() {
 
   let tx = 0, ty = 0, ttime = 0, tapTarget = null;
 
+  // Narrow selector: ONLY nav links where double-tap was the actual problem.
+  // Other onclick elements (audio toggle, photo tiles, IBAN copy) use the
+  // browser's natural click flow — they were never broken.
+  const NAV_SELECTOR = '.nav-links a[onclick], .mobile-nav a[onclick], .nav-cta[onclick], .nav-logo[onclick]';
+
   document.addEventListener('touchstart', function(e) {
     if (e.touches.length !== 1) { tapTarget = null; return; }
     tx = e.touches[0].clientX;
     ty = e.touches[0].clientY;
     ttime = Date.now();
-    // Match elements that have an onclick handler — covers nav links,
-    // buttons, photo tiles, IBAN copy etc. without naming each selector.
-    tapTarget = e.target.closest('a[onclick], button[onclick], [onclick]');
+    tapTarget = e.target.closest(NAV_SELECTOR);
   }, { passive: true });
 
   document.addEventListener('touchmove', function(e) {
     if (!tapTarget) return;
     const t = e.touches[0];
-    // Cancel if user moved more than 10px — they're scrolling, not tapping
     if (Math.abs(t.clientX - tx) > 10 || Math.abs(t.clientY - ty) > 10) {
       tapTarget = null;
     }
@@ -893,25 +872,12 @@ function setupFastTaps() {
     tapTarget = null;
     if (dt > 500) return; // long-press, not a tap
 
-    // Skip if the tap is on a native form control — let browser handle them
-    const tag = target.tagName.toLowerCase();
-    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
-    // Skip if it's a form submit button — submitForm logic needs the real submit event
-    if (target.type === 'submit') return;
+    // Block iOS's delayed synthetic click so we don't fire twice
+    e.preventDefault();
 
-    // Skip lightbox arrows (they have their own touch handlers)
-    if (target.closest('.photo-lightbox')) return;
-
-    e.preventDefault(); // Stop the natural synthetic click from firing again
-
-    // Fire the onclick directly
-    const onclickAttr = target.getAttribute('onclick');
-    if (onclickAttr) {
-      try { (new Function('event', onclickAttr)).call(target, e); }
-      catch (err) { console.warn('onclick error:', err); }
-    } else if (typeof target.click === 'function') {
-      target.click();
-    }
+    // Use the native click() method — triggers the inline onclick attribute
+    // as a real DOM event. Doesn't need eval (which CSP blocks).
+    if (typeof target.click === 'function') target.click();
   }, { passive: false });
 }
 
