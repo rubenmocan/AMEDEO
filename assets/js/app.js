@@ -331,6 +331,34 @@ function updateDomainsAudio() {
   }
 }
 
+// ─── Continuous audio fade loop ────────────────────────
+// updateDomainsAudio() only runs on scroll/resize events. On mobile, when
+// the user first unmutes audio without scrolling, the volume jumps because
+// only one frame of the smooth-approach calc runs. This rAF loop keeps
+// ramping the volume toward target until it converges, producing a gentle
+// fade-in/out regardless of scroll activity.
+let audioFadeRafId = null;
+function startAudioFadeLoop() {
+  if (audioFadeRafId) cancelAnimationFrame(audioFadeRafId);
+  function step() {
+    const video = document.getElementById('domains-video');
+    if (!video) { audioFadeRafId = null; return; }
+    const v = getDomainsVisibility();
+    const targetVol = videoAudioEnabled ? visibilityToVolume(v) : 0;
+    const curr = video.volume || 0;
+    const diff = targetVol - curr;
+    // ~6% of remaining distance per frame → smooth fade over ~1s
+    video.volume = Math.max(0, Math.min(1, curr + diff * 0.06));
+    if (Math.abs(diff) > 0.005) {
+      audioFadeRafId = requestAnimationFrame(step);
+    } else {
+      video.volume = Math.max(0, Math.min(1, targetVol));
+      audioFadeRafId = null;
+    }
+  }
+  audioFadeRafId = requestAnimationFrame(step);
+}
+
 function toggleVideoAudio() {
   const video = document.getElementById('domains-video');
   const btn = document.getElementById('video-audio-toggle');
@@ -340,16 +368,16 @@ function toggleVideoAudio() {
   btn.classList.toggle('muted', !videoAudioEnabled);
   btn.classList.remove('pulse');
   if (videoAudioEnabled) {
+    video.volume = 0;
     video.muted = false;
     const playPromise = video.play();
     if (playPromise && playPromise.catch) playPromise.catch(function() {});
     btn.setAttribute('aria-label', 'Dezactivează sunetul video');
   } else {
     video.muted = true;
-    video.volume = 0;
     btn.setAttribute('aria-label', 'Activează sunetul video');
   }
-  updateDomainsAudio();
+  startAudioFadeLoop();
 }
 
 let cineTicking = false;
@@ -412,12 +440,13 @@ function tryAutoEnableVideoAudio() {
   const btn = document.getElementById('video-audio-toggle');
   if (!video) return;
   videoAudioEnabled = true;
+  video.volume = 0;
   video.muted = false;
   const playPromise = video.play();
   if (playPromise && playPromise.catch) {
     playPromise.catch(function() {
-      // Browser refused unmuted autoplay (typical on desktop HTTPS).
-      // Revert and let user click the toggle button.
+      // Browser refused (typical Chrome desktop on scroll). Revert and
+      // let the user click the audio button explicitly.
       video.muted = true;
       videoAudioEnabled = false;
       if (btn) btn.classList.add('muted');
@@ -427,7 +456,7 @@ function tryAutoEnableVideoAudio() {
     btn.classList.toggle('muted', !videoAudioEnabled);
     btn.classList.remove('pulse');
   }
-  updateDomainsAudio();
+  startAudioFadeLoop();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -843,6 +872,49 @@ function setupFastTaps() {
 }
 
 // ═══════════════════════════════════════════════════════════
+//   WEB AUDIO API for fade on iOS — video.volume is read-only on iOS,
+//   so we route the video through AudioContext + GainNode. Gain CAN be
+//   ramped on iOS, giving us true fade-in/fade-out everywhere.
+// ═══════════════════════════════════════════════════════════
+let audioCtx = null;
+let audioGain = null;
+let audioSourceNode = null;
+
+function initAudioGraph() {
+  if (audioCtx || !('AudioContext' in window || 'webkitAudioContext' in window)) return false;
+  const video = document.getElementById('domains-video');
+  if (!video) return false;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AC();
+    audioSourceNode = audioCtx.createMediaElementSource(video);
+    audioGain = audioCtx.createGain();
+    audioGain.gain.value = 0; // start silent
+    audioSourceNode.connect(audioGain);
+    audioGain.connect(audioCtx.destination);
+    return true;
+  } catch (e) {
+    console.warn('Web Audio init failed (continuing without fade):', e.message);
+    audioCtx = null;
+    return false;
+  }
+}
+
+function fadeAudioGainTo(targetVol, durationMs) {
+  if (!audioCtx || !audioGain) return;
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume().catch(() => {});
+  }
+  const now = audioCtx.currentTime;
+  const d = Math.max(0.05, (durationMs || 600) / 1000);
+  try {
+    audioGain.gain.cancelScheduledValues(now);
+    audioGain.gain.setValueAtTime(audioGain.gain.value, now);
+    audioGain.gain.linearRampToValueAtTime(Math.max(0, Math.min(1, targetVol)), now + d);
+  } catch (e) { /* ignore */ }
+}
+
+// ═══════════════════════════════════════════════════════════
 //   FORM TIMESTAMP — bot timing detection
 //   Setăm timestamp-ul la încărcarea paginii. Apps Script verifică
 //   diff-ul față de Date.now() la submit. Sub 2s = bot (silent drop).
@@ -928,6 +1000,14 @@ document.addEventListener('DOMContentLoaded', function() {
   unobfuscateEmails();
   setFormTimestamps();
   setupFastTaps();
+
+  // Kick the background video to start playing (muted). Some browsers don't
+  // honor `autoplay` reliably and need an explicit play() call from JS.
+  const bgVideo = document.getElementById('domains-video');
+  if (bgVideo) {
+    const kick = bgVideo.play();
+    if (kick && kick.catch) kick.catch(function() { /* autoplay blocked; ignore */ });
+  }
 
   window.addEventListener('scroll', onScrollCinematic, { passive: true });
   window.addEventListener('resize', onScrollCinematic, { passive: true });
