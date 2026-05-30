@@ -300,11 +300,6 @@ function updateBranchesStage(page, stage, p) {
 const MAX_VIDEO_VOLUME = 0.85;
 let videoAudioEnabled = false;
 let videoUserInteracted = false;
-// Bumped on each play() attempt — older async .then/.catch handlers compare
-// their captured ID to the current ID and bail if a newer attempt is in flight.
-// Without this, a failed auto-enable would re-mute the video AFTER a successful
-// manual toggle, requiring the user to click twice.
-let audioAttemptId = 0;
 
 function getDomainsVisibility() {
   const section = document.querySelector('.domains-section');
@@ -336,78 +331,25 @@ function updateDomainsAudio() {
   }
 }
 
-// ─── Continuous audio fade loop ────────────────────────
-// updateDomainsAudio() only runs on scroll/resize events. On mobile, when
-// the user first unmutes audio without scrolling, the volume jumps because
-// only one frame of the smooth-approach calc runs. This rAF loop keeps
-// ramping the volume toward target until it converges, producing a gentle
-// fade-in/out regardless of scroll activity.
-let audioFadeRafId = null;
-function startAudioFadeLoop() {
-  if (audioFadeRafId) cancelAnimationFrame(audioFadeRafId);
-  function step() {
-    const video = document.getElementById('domains-video');
-    if (!video) { audioFadeRafId = null; return; }
-    const v = getDomainsVisibility();
-    const targetVol = videoAudioEnabled ? visibilityToVolume(v) : 0;
-    const curr = video.volume || 0;
-    const diff = targetVol - curr;
-    // ~6% of remaining distance per frame → smooth fade over ~1s
-    video.volume = Math.max(0, Math.min(1, curr + diff * 0.06));
-    if (Math.abs(diff) > 0.005) {
-      audioFadeRafId = requestAnimationFrame(step);
-    } else {
-      video.volume = Math.max(0, Math.min(1, targetVol));
-      audioFadeRafId = null;
-    }
-  }
-  audioFadeRafId = requestAnimationFrame(step);
-}
-
 function toggleVideoAudio() {
   const video = document.getElementById('domains-video');
   const btn = document.getElementById('video-audio-toggle');
   if (!video || !btn) return;
   videoUserInteracted = true;
+  videoAudioEnabled = !videoAudioEnabled;
+  btn.classList.toggle('muted', !videoAudioEnabled);
   btn.classList.remove('pulse');
-
-  // Bump the version BEFORE we start anything — invalidates any in-flight
-  // .then/.catch from a previous tryAutoEnable attempt so they can't undo us.
-  const myId = ++audioAttemptId;
-  const wantsAudio = btn.classList.contains('muted');
-
-  if (wantsAudio) {
-    video.volume = 0;
+  if (videoAudioEnabled) {
     video.muted = false;
     const playPromise = video.play();
-    if (playPromise && playPromise.then) {
-      playPromise.then(function() {
-        if (myId !== audioAttemptId) return; // a newer attempt is in flight
-        videoAudioEnabled = true;
-        btn.classList.remove('muted');
-        btn.setAttribute('aria-label', 'Dezactivează sunetul video');
-        startAudioFadeLoop();
-      }).catch(function(err) {
-        if (myId !== audioAttemptId) return;
-        console.warn('play() rejected on toggle:', err && err.message);
-        video.muted = true;
-        videoAudioEnabled = false;
-        // button stays muted; user can retry
-      });
-    } else {
-      // Old browser without play() promise — assume success
-      videoAudioEnabled = true;
-      btn.classList.remove('muted');
-      btn.setAttribute('aria-label', 'Dezactivează sunetul video');
-      startAudioFadeLoop();
-    }
+    if (playPromise && playPromise.catch) playPromise.catch(function() {});
+    btn.setAttribute('aria-label', 'Dezactivează sunetul video');
   } else {
-    videoAudioEnabled = false;
     video.muted = true;
-    btn.classList.add('muted');
+    video.volume = 0;
     btn.setAttribute('aria-label', 'Activează sunetul video');
-    startAudioFadeLoop();
   }
+  updateDomainsAudio();
 }
 
 let cineTicking = false;
@@ -469,39 +411,23 @@ function tryAutoEnableVideoAudio() {
   const video = document.getElementById('domains-video');
   const btn = document.getElementById('video-audio-toggle');
   if (!video) return;
-
-  // Mobile touchstart is a real user gesture → play() resolves → audio plays.
-  // Desktop scroll is NOT a user gesture for audio policy → play() rejects.
-  // Either way, only update visible state AFTER the play promise settles —
-  // no synchronous flash of "unmuted" if it's going to fail.
-  const myId = ++audioAttemptId;
-  video.volume = 0;
+  videoAudioEnabled = true;
   video.muted = false;
   const playPromise = video.play();
-  if (playPromise && playPromise.then) {
-    playPromise.then(function() {
-      if (myId !== audioAttemptId) return; // newer attempt invalidated this one
-      videoAudioEnabled = true;
-      if (btn) {
-        btn.classList.remove('muted', 'pulse');
-        btn.setAttribute('aria-label', 'Dezactivează sunetul video');
-      }
-      startAudioFadeLoop();
-    }).catch(function() {
-      if (myId !== audioAttemptId) return;
-      // Browser blocked unmute (typical desktop autoplay policy on scroll).
-      // Revert silently and keep button in "muted" state so the user can
-      // click it for a proper user-gesture-triggered unmute.
+  if (playPromise && playPromise.catch) {
+    playPromise.catch(function() {
+      // Browser refused unmuted autoplay (typical on desktop HTTPS).
+      // Revert and let user click the toggle button.
       video.muted = true;
       videoAudioEnabled = false;
       if (btn) btn.classList.add('muted');
     });
-  } else {
-    // Very old browser without play promise — assume success
-    videoAudioEnabled = true;
-    if (btn) btn.classList.remove('muted', 'pulse');
-    startAudioFadeLoop();
   }
+  if (btn) {
+    btn.classList.toggle('muted', !videoAudioEnabled);
+    btn.classList.remove('pulse');
+  }
+  updateDomainsAudio();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -917,49 +843,6 @@ function setupFastTaps() {
 }
 
 // ═══════════════════════════════════════════════════════════
-//   WEB AUDIO API for fade on iOS — video.volume is read-only on iOS,
-//   so we route the video through AudioContext + GainNode. Gain CAN be
-//   ramped on iOS, giving us true fade-in/fade-out everywhere.
-// ═══════════════════════════════════════════════════════════
-let audioCtx = null;
-let audioGain = null;
-let audioSourceNode = null;
-
-function initAudioGraph() {
-  if (audioCtx || !('AudioContext' in window || 'webkitAudioContext' in window)) return false;
-  const video = document.getElementById('domains-video');
-  if (!video) return false;
-  try {
-    const AC = window.AudioContext || window.webkitAudioContext;
-    audioCtx = new AC();
-    audioSourceNode = audioCtx.createMediaElementSource(video);
-    audioGain = audioCtx.createGain();
-    audioGain.gain.value = 0; // start silent
-    audioSourceNode.connect(audioGain);
-    audioGain.connect(audioCtx.destination);
-    return true;
-  } catch (e) {
-    console.warn('Web Audio init failed (continuing without fade):', e.message);
-    audioCtx = null;
-    return false;
-  }
-}
-
-function fadeAudioGainTo(targetVol, durationMs) {
-  if (!audioCtx || !audioGain) return;
-  if (audioCtx.state === 'suspended') {
-    audioCtx.resume().catch(() => {});
-  }
-  const now = audioCtx.currentTime;
-  const d = Math.max(0.05, (durationMs || 600) / 1000);
-  try {
-    audioGain.gain.cancelScheduledValues(now);
-    audioGain.gain.setValueAtTime(audioGain.gain.value, now);
-    audioGain.gain.linearRampToValueAtTime(Math.max(0, Math.min(1, targetVol)), now + d);
-  } catch (e) { /* ignore */ }
-}
-
-// ═══════════════════════════════════════════════════════════
 //   FORM TIMESTAMP — bot timing detection
 //   Setăm timestamp-ul la încărcarea paginii. Apps Script verifică
 //   diff-ul față de Date.now() la submit. Sub 2s = bot (silent drop).
@@ -1045,14 +928,6 @@ document.addEventListener('DOMContentLoaded', function() {
   unobfuscateEmails();
   setFormTimestamps();
   setupFastTaps();
-
-  // Kick the background video to start playing (muted). Some browsers don't
-  // honor `autoplay` reliably and need an explicit play() call from JS.
-  const bgVideo = document.getElementById('domains-video');
-  if (bgVideo) {
-    const kick = bgVideo.play();
-    if (kick && kick.catch) kick.catch(function() { /* autoplay blocked; ignore */ });
-  }
 
   window.addEventListener('scroll', onScrollCinematic, { passive: true });
   window.addEventListener('resize', onScrollCinematic, { passive: true });
