@@ -364,21 +364,48 @@ function toggleVideoAudio() {
   const btn = document.getElementById('video-audio-toggle');
   if (!video || !btn) return;
   videoUserInteracted = true;
-  videoAudioEnabled = !videoAudioEnabled;
-  btn.classList.toggle('muted', !videoAudioEnabled);
   btn.classList.remove('pulse');
 
-  if (videoAudioEnabled) {
-    video.volume = 0; // start silent, rAF loop fades in
+  // What the user wants is the opposite of the current visual muted state.
+  // Read from the button (= source of truth), not videoAudioEnabled (which
+  // can drift out of sync if a previous play() failed).
+  const wantsAudio = btn.classList.contains('muted');
+
+  if (wantsAudio) {
+    // Trying to ENABLE audio. Also (re)starts the video if it's paused.
+    video.volume = 0;
     video.muted = false;
     const playPromise = video.play();
-    if (playPromise && playPromise.catch) playPromise.catch(function() {});
-    btn.setAttribute('aria-label', 'Dezactivează sunetul video');
+    if (playPromise && playPromise.then) {
+      playPromise.then(function() {
+        // Success — sync state, start fade
+        videoAudioEnabled = true;
+        btn.classList.remove('muted');
+        btn.setAttribute('aria-label', 'Dezactivează sunetul video');
+        startAudioFadeLoop();
+      }).catch(function(err) {
+        // Browser refused (rare after user click). Revert cleanly so the
+        // next click starts a fresh attempt without going through "mute".
+        console.warn('play() rejected on toggle:', err && err.message);
+        video.muted = true;
+        videoAudioEnabled = false;
+        // Button stays in muted state — user can try again
+      });
+    } else {
+      // Older browser without play promise — assume success
+      videoAudioEnabled = true;
+      btn.classList.remove('muted');
+      btn.setAttribute('aria-label', 'Dezactivează sunetul video');
+      startAudioFadeLoop();
+    }
   } else {
+    // Trying to DISABLE audio (mute). Video keeps playing.
+    videoAudioEnabled = false;
     video.muted = true;
+    btn.classList.add('muted');
     btn.setAttribute('aria-label', 'Activează sunetul video');
+    startAudioFadeLoop();
   }
-  startAudioFadeLoop();
 }
 
 let cineTicking = false;
@@ -1010,6 +1037,14 @@ document.addEventListener('DOMContentLoaded', function() {
   unobfuscateEmails();
   setFormTimestamps();
   setupFastTaps();
+
+  // Kick the background video to start playing (muted). Some browsers don't
+  // honor `autoplay` reliably and need an explicit play() call from JS.
+  const bgVideo = document.getElementById('domains-video');
+  if (bgVideo) {
+    const kick = bgVideo.play();
+    if (kick && kick.catch) kick.catch(function() { /* autoplay blocked; ignore */ });
+  }
 
   window.addEventListener('scroll', onScrollCinematic, { passive: true });
   window.addEventListener('resize', onScrollCinematic, { passive: true });
