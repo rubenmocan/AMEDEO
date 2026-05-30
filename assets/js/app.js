@@ -300,6 +300,11 @@ function updateBranchesStage(page, stage, p) {
 const MAX_VIDEO_VOLUME = 0.85;
 let videoAudioEnabled = false;
 let videoUserInteracted = false;
+// Bumped on each play() attempt — older async .then/.catch handlers compare
+// their captured ID to the current ID and bail if a newer attempt is in flight.
+// Without this, a failed auto-enable would re-mute the video AFTER a successful
+// manual toggle, requiring the user to click twice.
+let audioAttemptId = 0;
 
 function getDomainsVisibility() {
   const section = document.querySelector('.domains-section');
@@ -366,40 +371,37 @@ function toggleVideoAudio() {
   videoUserInteracted = true;
   btn.classList.remove('pulse');
 
-  // What the user wants is the opposite of the current visual muted state.
-  // Read from the button (= source of truth), not videoAudioEnabled (which
-  // can drift out of sync if a previous play() failed).
+  // Bump the version BEFORE we start anything — invalidates any in-flight
+  // .then/.catch from a previous tryAutoEnable attempt so they can't undo us.
+  const myId = ++audioAttemptId;
   const wantsAudio = btn.classList.contains('muted');
 
   if (wantsAudio) {
-    // Trying to ENABLE audio. Also (re)starts the video if it's paused.
     video.volume = 0;
     video.muted = false;
     const playPromise = video.play();
     if (playPromise && playPromise.then) {
       playPromise.then(function() {
-        // Success — sync state, start fade
+        if (myId !== audioAttemptId) return; // a newer attempt is in flight
         videoAudioEnabled = true;
         btn.classList.remove('muted');
         btn.setAttribute('aria-label', 'Dezactivează sunetul video');
         startAudioFadeLoop();
       }).catch(function(err) {
-        // Browser refused (rare after user click). Revert cleanly so the
-        // next click starts a fresh attempt without going through "mute".
+        if (myId !== audioAttemptId) return;
         console.warn('play() rejected on toggle:', err && err.message);
         video.muted = true;
         videoAudioEnabled = false;
-        // Button stays in muted state — user can try again
+        // button stays muted; user can retry
       });
     } else {
-      // Older browser without play promise — assume success
+      // Old browser without play() promise — assume success
       videoAudioEnabled = true;
       btn.classList.remove('muted');
       btn.setAttribute('aria-label', 'Dezactivează sunetul video');
       startAudioFadeLoop();
     }
   } else {
-    // Trying to DISABLE audio (mute). Video keeps playing.
     videoAudioEnabled = false;
     video.muted = true;
     btn.classList.add('muted');
@@ -468,32 +470,38 @@ function tryAutoEnableVideoAudio() {
   const btn = document.getElementById('video-audio-toggle');
   if (!video) return;
 
-  // ─── Auto-enable uses video.volume (NOT Web Audio) ───
-  // createMediaElementSource permanently reroutes audio through the AudioContext.
-  // If we init Web Audio here and gain starts at 0, the audio goes silent
-  // — on iOS, desktop, everywhere. Web Audio is only initialized when the
-  // user clicks the audio toggle button, where they expect fade behaviour.
-  videoAudioEnabled = true;
-  video.volume = 0; // Start silent so rAF loop can fade in (Android/Desktop)
+  // Mobile touchstart is a real user gesture → play() resolves → audio plays.
+  // Desktop scroll is NOT a user gesture for audio policy → play() rejects.
+  // Either way, only update visible state AFTER the play promise settles —
+  // no synchronous flash of "unmuted" if it's going to fail.
+  const myId = ++audioAttemptId;
+  video.volume = 0;
   video.muted = false;
   const playPromise = video.play();
-  if (playPromise && playPromise.catch) {
-    playPromise.catch(function(err) {
-      // Autoplay-with-sound blocked; fall back to muted, user can tap toggle.
-      console.warn('Auto-enable failed:', err && err.message);
+  if (playPromise && playPromise.then) {
+    playPromise.then(function() {
+      if (myId !== audioAttemptId) return; // newer attempt invalidated this one
+      videoAudioEnabled = true;
+      if (btn) {
+        btn.classList.remove('muted', 'pulse');
+        btn.setAttribute('aria-label', 'Dezactivează sunetul video');
+      }
+      startAudioFadeLoop();
+    }).catch(function() {
+      if (myId !== audioAttemptId) return;
+      // Browser blocked unmute (typical desktop autoplay policy on scroll).
+      // Revert silently and keep button in "muted" state so the user can
+      // click it for a proper user-gesture-triggered unmute.
       video.muted = true;
       videoAudioEnabled = false;
       if (btn) btn.classList.add('muted');
     });
+  } else {
+    // Very old browser without play promise — assume success
+    videoAudioEnabled = true;
+    if (btn) btn.classList.remove('muted', 'pulse');
+    startAudioFadeLoop();
   }
-  if (btn) {
-    btn.classList.toggle('muted', !videoAudioEnabled);
-    btn.classList.remove('pulse');
-  }
-  // rAF loop slides video.volume to target (works on Android/Desktop).
-  // On iOS, video.volume changes are silently ignored; audio plays at
-  // hardware volume — no fade, but immediate audibility.
-  startAudioFadeLoop();
 }
 
 // ═══════════════════════════════════════════════════════════
