@@ -250,9 +250,11 @@
          JS-ul (tryAutoEnableVideoAudio) face video.muted = false la prima
          interacțiune (scroll/click/touch) — deci la primul scroll pe pagină
          sunetul apare automat. Atributul `muted` din HTML reprezintă DOAR
-         starea inițială (până la prima interacțiune), NU starea finală. -->
+         starea inițială (până la prima interacțiune), NU starea finală.
+         `preload="auto"` pre-încarcă videoclipul imediat ce intri pe site, ca
+         să nu apară fundal negru când scrollezi la prima vizită (fără cache). -->
     <div class="domains-video-bg">
-      <video id="domains-video" autoplay muted loop playsinline preload="metadata" poster="">
+      <video id="domains-video" autoplay muted loop playsinline preload="auto" poster="">
         <source src="assets/domains-bg.mp4" type="video/mp4">
       </video>
     </div>
