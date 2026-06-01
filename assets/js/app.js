@@ -934,5 +934,28 @@ document.addEventListener('DOMContentLoaded', function() {
   ['scroll', 'click', 'touchstart', 'keydown'].forEach(ev => {
     window.addEventListener(ev, tryAutoEnableVideoAudio, { once: true, passive: true });
   });
+
+  // Ensure background video is playing the moment user reaches the domains
+  // section. Browsers sometimes pause autoplay videos that are below the fold
+  // (power-saving), so we explicitly kick play() when the section enters view.
+  // Muted autoplay is always allowed — this is independent of the audio toggle.
+  const domainsSection = document.querySelector('.domains-section');
+  const domainsVideo = document.getElementById('domains-video');
+  if (domainsSection && domainsVideo) {
+    const kickPlay = function() {
+      const p = domainsVideo.play();
+      if (p && p.catch) p.catch(function() {});
+    };
+    // Try immediately on load (most browsers will start playing right away).
+    kickPlay();
+    // Safety net: re-kick when section becomes visible.
+    const videoObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting && domainsVideo.paused) kickPlay();
+      });
+    }, { rootMargin: '200px 0px' });
+    videoObserver.observe(domainsSection);
+  }
+
   onScrollCinematic();
 });
